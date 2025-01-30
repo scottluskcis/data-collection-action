@@ -1,23 +1,64 @@
-name: The name of your action here
-description: Provide a description here
-author: Your name or organization here
+name: Data Collection
+description:
+  Gathers details about an organization and its repositories and exports them to
+  a CSV file.
+author: Scott Lusk
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
-  icon: heart
-  color: red
+  icon: file
+  color: black
 
 # Define your inputs here.
 inputs:
-  milliseconds:
-    description: Your input description here
+  org:
+    description: The organization to gather data for
     required: true
-    default: '1000'
+
+  api_url:
+    description: The GitHub API URL to use
+    required: false
+
+  token:
+    description: The GitHub token to use for authentication
+    required: false
+
+  is_debug:
+    description: Whether to output debug information
+    required: false
+    default: 'false'
+
+  auth_type:
+    description:
+      The authentication strategy to use (either 'token', 'app', or
+      'installation')
+    required: false
+    default: 'token'
+
+  client_id:
+    description: The GitHub App client ID to use for authentication
+    required: false
+
+  client_secret:
+    description: The GitHub App client secret to use for authentication
+    required: false
+
+  app_id:
+    description: The GitHub App ID to use for authentication
+    required: false
+
+  app_private_key:
+    description: The GitHub App private key to use for authentication
+    required: false
+
+  app_installation_id:
+    description: The GitHub App installation ID to use for authentication
+    required: false
 
 # Define your outputs here.
 outputs:
-  time:
-    description: Your output description here
+  file:
+    description: The generated artifact
 
 runs:
   using: node20
