@@ -1,7 +1,5 @@
 import fs from 'fs'
-import { Octokit } from '@octokit/rest'
-import { retry } from '@octokit/plugin-retry'
-import { throttling } from '@octokit/plugin-throttling'
+import { Octokit } from 'octokit'
 import { components } from '@octokit/openapi-types'
 
 interface Webhook {
@@ -33,33 +31,10 @@ type RepoType = components['schemas']['repository']
 
 //const IGNORED_ORGS = ['github', 'actions']
 
-const _Octokit = Octokit.plugin(retry, throttling)
-
 async function newClient(url: string, token: string): Promise<Octokit> {
-  return new _Octokit({
-    auth: token,
+  return new Octokit({
+    auth: token
     //baseUrl: url,
-    retries: 10,
-    throttle: {
-      onRateLimit: (retryAfter, options, octokit) => {
-        octokit.log.warn(
-          `Request quota exhausted for request ${options.method} ${options.url}`
-        )
-        if (options.request.retryCount === 0) {
-          octokit.log.info(`Retrying after ${retryAfter} seconds!`)
-          return true
-        }
-      },
-      onSecondaryRateLimit: (retryAfter, options, octokit) => {
-        octokit.log.warn(
-          `Abuse detected for request ${options.method} ${options.url}`
-        )
-        if (options.request.retryCount === 0) {
-          octokit.log.info(`Retrying after ${retryAfter} seconds!`)
-          return true
-        }
-      }
-    }
   })
 }
 
@@ -178,31 +153,47 @@ const getRepoStats = async (
   org: string,
   repo: RepoType
 ): Promise<RepoStats> => {
-  const name = repo.name
+  let result: RepoStats
+  if (repo.archived) {
+    result = {
+      org: org,
+      name: repo.name,
+      archived: repo.archived,
+      created_at: repo.created_at,
+      pushed_at: repo.pushed_at,
+      updated_at: repo.updated_at,
+      runners: null,
+      secrets: null,
+      variables: null,
+      environments: null,
+      hooks: null
+    }
+  } else {
+    const name = repo.name
 
-  const [runners, secrets, variables, environments, hooks] = await Promise.all([
-    getRunnerCount(octokit, org, name),
-    getSecretsCount(octokit, org, name),
-    getVariablesCount(octokit, org, name),
-    getEnvironmentsCount(octokit, org, name),
-    webhooks(octokit, org, name)
-  ])
+    const runners = await getRunnerCount(octokit, org, name)
+    const secrets = await getSecretsCount(octokit, org, name)
+    const variables = await getVariablesCount(octokit, org, name)
+    const environments = await getEnvironmentsCount(octokit, org, name)
+    const hooks = await webhooks(octokit, org, name)
 
-  const result: RepoStats = {
-    org: org,
-    name: name,
-    archived: repo.archived,
-    created_at: repo.created_at,
-    pushed_at: repo.pushed_at,
-    updated_at: repo.updated_at,
-    runners: runners,
-    secrets: secrets,
-    variables: variables,
-    environments: environments,
-    hooks: hooks
+    result = {
+      org: org,
+      name: name,
+      archived: repo.archived,
+      created_at: repo.created_at,
+      pushed_at: repo.pushed_at,
+      updated_at: repo.updated_at,
+      runners: runners,
+      secrets: secrets,
+      variables: variables,
+      environments: environments,
+      hooks: hooks
+    }
   }
   return result
 }
+
 export async function collectData({
   url,
   token,
@@ -233,62 +224,10 @@ export async function collectData({
     for await (const { data: repos } of _repos) {
       for (const repo of repos) {
         const result = await getRepoStats(octokit, org, repo as RepoType)
-
-        /*
-        const name = repo.name
-        const runners = await getRunnerCount(octokit, org, name)
-        const secrets = await getSecretsCount(octokit, org, name)
-        const variables = await getVariablesCount(octokit, org, name)
-        const environments = await getEnvironmentsCount(octokit, org, name)
-        const hooks = await webhooks(octokit, org, name)
-        const result = {
-          org: org,
-          name: name,
-          archived: repo.archived,
-          created_at: repo.created_at,
-          pushed_at: repo.pushed_at,
-          updated_at: repo.updated_at,
-          runners: runners,
-          secrets: secrets,
-          variables: variables,
-          environments: environments,
-          hooks: hooks
-        }
-        console.log(JSON.stringify(result))
-        */
         console.log(JSON.stringify(result))
         results.push(result)
       }
     }
-    /*
-    const repos = await client.paginate('GET /orgs/{org}/repos', {
-      org: org,
-      per_page: 100
-    })
-    for (const repo of repos) {
-      const name = repo.name
-      const runners = await getRunnerCount(client, org, name)
-      const secrets = await getSecretsCount(client, org, name)
-      const variables = await getVariablesCount(client, org, name)
-      const environments = await getEnvironmentsCount(client, org, name)
-      const hooks = await webhooks(client, org, name)
-      const result = {
-        org: org,
-        name: name,
-        archived: repo.archived,
-        created_at: repo.created_at,
-        pushed_at: repo.pushed_at,
-        updated_at: repo.updated_at,
-        runners: runners,
-        secrets: secrets,
-        variables: variables,
-        environments: environments,
-        hooks: hooks
-      }
-      console.log(JSON.stringify(result))
-      results.push(result)
-    }
-    */
   }
   fs.writeFileSync('/tmp/results.json', JSON.stringify(results))
 }
