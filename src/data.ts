@@ -29,11 +29,13 @@ interface RepoStats {
 
 type RepoType = components['schemas']['repository']
 
+// TODO: add this back to support ignoring certain orgs
 //const IGNORED_ORGS = ['github', 'actions']
 
 async function newClient(url: string, token: string): Promise<Octokit> {
   return new Octokit({
     auth: token
+    // TODO: add this back to support specifying a base url
     //baseUrl: url,
   })
 }
@@ -206,6 +208,7 @@ export async function collectData({
   const results = []
 
   const octokit = await newClient(url, token)
+  // TODO: add this back to support list all orgs
   /*
   const _orgs = await client.paginate('GET /organizations', {
     per_page: 100
