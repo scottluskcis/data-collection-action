@@ -1,6 +1,8 @@
-import fs from 'fs'
+import fs from 'fs/promises'
 import { Octokit } from 'octokit'
 import { components } from '@octokit/openapi-types'
+import { createAppAuth } from '@octokit/auth-app'
+import { createTokenAuth } from '@octokit/auth-token'
 
 interface Webhook {
   name: string
@@ -29,13 +31,95 @@ interface RepoStats {
 
 type RepoType = components['schemas']['repository']
 
-//const IGNORED_ORGS = ['github', 'actions']
+export interface DataCollectOptions {
+  org: string
+  api_url: string
+  auth_type: string
+  token: string | undefined
+  is_debug: boolean | undefined
+  client_id: string | undefined
+  client_secret: string | undefined
+  app_id: string | undefined
+  app_private_key: string | undefined
+  app_installation_id: string | undefined
+}
 
-async function newClient(url: string, token: string): Promise<Octokit> {
-  return new Octokit({
-    auth: token
-    //baseUrl: url,
-  })
+function getInstallationAuthConfig(options: DataCollectOptions) {
+  if (!options.app_id) {
+    throw new Error('app_id is required')
+  }
+  if (!options.app_private_key) {
+    throw new Error('app_private_key is required')
+  }
+  if (!options.app_installation_id) {
+    throw new Error('app_installation_id is required')
+  }
+
+  const authStrategy = createAppAuth
+  const auth = {
+    appId: parseInt(options.app_id),
+    privateKey: options.app_private_key,
+    installationId: parseInt(options.app_installation_id)
+  }
+
+  return { authStrategy, auth }
+}
+
+function getAppAuthConfig(options: DataCollectOptions) {
+  if (!options.app_id) {
+    throw new Error('app_id is required')
+  }
+  if (!options.app_private_key) {
+    throw new Error('app_private_key is required')
+  }
+  if (!options.client_id) {
+    throw new Error('client_id is required')
+  }
+  if (!options.client_secret) {
+    throw new Error('client_secret is required')
+  }
+
+  const authStrategy = createAppAuth
+  const auth = {
+    appId: parseInt(options.app_id),
+    privateKey: options.app_private_key,
+    clientId: options.client_id,
+    clientSecret: options.client_secret
+  }
+
+  return { authStrategy, auth }
+}
+
+function getDefaultAuthConfig(options: DataCollectOptions) {
+  if (!options.token) {
+    throw new Error('token is required')
+  }
+
+  return { authStrategy: createTokenAuth, auth: options.token }
+}
+
+function getAuthConfig(options: DataCollectOptions) {
+  if (options.auth_type === 'installation') {
+    return getInstallationAuthConfig(options)
+  } else if (options.auth_type === 'app') {
+    return getAppAuthConfig(options)
+  } else {
+    return getDefaultAuthConfig(options)
+  }
+}
+
+async function newClient(options: DataCollectOptions): Promise<Octokit> {
+  if (!options) {
+    throw new Error('options are required')
+  }
+
+  const { authStrategy, auth } = getAuthConfig(options)
+  const octokitOptions = {
+    authStrategy,
+    auth
+  }
+
+  return new Octokit(octokitOptions)
 }
 
 const getRunnerCount = async (octokit: Octokit, org: string, repo: string) => {
@@ -194,40 +278,31 @@ const getRepoStats = async (
   return result
 }
 
-export async function collectData({
-  url,
-  token,
-  org
-}: {
-  url: string
-  token: string
-  org: string
-}): Promise<void> {
-  const results = []
+export async function collectData(options: DataCollectOptions): Promise<void> {
+  const filePath = 'results.json'
+  await fs.writeFile(filePath, '[\n', 'utf8')
 
-  const octokit = await newClient(url, token)
-  /*
-  const _orgs = await client.paginate('GET /organizations', {
-    per_page: 100
-  })
-  const orgs = _orgs
-    .map((org) => org.login)
-    .filter((org) => !IGNORED_ORGS.includes(org))
-    */
-  const orgs = [org]
+  const octokit = await newClient(options)
+  const orgs = [options.org]
   for (const org of orgs) {
     const _repos = octokit.paginate.iterator(octokit.rest.repos.listForOrg, {
       org: org,
       per_page: 100
     })
 
+    let first = true
     for await (const { data: repos } of _repos) {
       for (const repo of repos) {
         const result = await getRepoStats(octokit, org, repo as RepoType)
         console.log(JSON.stringify(result))
-        results.push(result)
+
+        // Write the result to the file incrementally
+        const json = JSON.stringify(result, null, 2)
+        await fs.appendFile(filePath, `${first ? '' : ',\n'}${json}`, 'utf8')
+        first = false
       }
     }
   }
-  fs.writeFileSync('/tmp/results.json', JSON.stringify(results))
+
+  await fs.appendFile(filePath, '\n]', 'utf8')
 }

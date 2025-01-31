@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 //import { wait } from './wait.js'
-import { collectData } from './data.js'
+import { collectData, DataCollectOptions } from './data.js'
 
 /**
  * The main function for the action.
@@ -9,34 +9,30 @@ import { collectData } from './data.js'
  */
 export async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-
-    const url = process.env.GH_SOURCE_URL
-    if (!url) {
-      throw new Error('GH_SOURCE_URL is not set')
-    }
-
-    const token = process.env.GH_SOURCE_TOKEN
-    if (!token) {
-      throw new Error('GH_SOURCE_TOKEN is not set')
-    }
-
-    const org = process.env.GH_SOURCE_ORG
-    if (!org) {
-      throw new Error('GH_SOURCE_ORG is not set')
+    const options: DataCollectOptions = {
+      org: core.getInput('org'),
+      api_url: core.getInput('api_url'),
+      token: core.getInput('token'),
+      auth_type: core.getInput('auth_type'),
+      is_debug: core.getInput('is_debug') === 'true' ? true : false,
+      client_id: core.getInput('client_id'),
+      client_secret: core.getInput('client_secret'),
+      app_id: core.getInput('app_id'),
+      app_private_key: core.getInput('app_private_key'),
+      app_installation_id: core.getInput('app_installation_id')
     }
 
     // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(`Waiting ${ms} milliseconds ...`)
+    core.debug(`Gathering data for ${options.org} ...`)
 
     // Log the current timestamp, wait, then log the new timestamp
     core.debug(new Date().toTimeString())
-    await collectData({ url, token, org })
+    await collectData(options)
     //await wait(parseInt(ms, 10))
     core.debug(new Date().toTimeString())
 
     // Set outputs for other workflow steps to use
-    core.setOutput('time', new Date().toTimeString())
+    core.setOutput('file', new Date().toTimeString())
   } catch (error) {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) core.setFailed(error.message)
