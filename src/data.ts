@@ -122,41 +122,6 @@ async function newClient(options: DataCollectOptions): Promise<Octokit> {
     auth
   }
 
-  /*
-
-    auth: {
-    appId: 1,
-    privateKey: "-----BEGIN PRIVATE KEY-----\n...",
-    clientId: "1234567890abcdef1234",
-    clientSecret: "1234567890abcdef1234567890abcdef12345678",
-  },
-
-
-
-  const installationOctokit = new Octokit({
-  authStrategy: createAppAuth,
-  auth: {
-    appId: 1,
-    privateKey: "-----BEGIN PRIVATE KEY-----\n...",
-    installationId: 123,
-  },
-});
-
-
-const auth = createAppAuth({
-  appId: 1,
-  privateKey: "-----BEGIN PRIVATE KEY-----\n...",
-  clientId: "lv1.1234567890abcdef",
-  clientSecret: "1234567890abcdef12341234567890abcdef1234",
-});
-
-// Retrieve installation access token
-const installationAuthentication = await auth({
-  type: "installation",
-  installationId: 123,
-});
-  */
-
   return new Octokit(octokitOptions)
 }
 
@@ -342,7 +307,7 @@ export async function collectData(options: DataCollectOptions): Promise<void> {
         console.log(JSON.stringify(result))
         results.push(result)
       }
-      if (results.length > 500) {
+      if (results.length > 100) {
         break // TODO remove this, adding temporarily to limit the number of requests
       }
     }
