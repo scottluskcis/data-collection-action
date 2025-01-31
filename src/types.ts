@@ -29,6 +29,8 @@ export type RepoType = components['schemas']['repository']
 
 export type AuthType = 'default' | 'app' | 'installation' | 'token'
 
+export type OutputFileType = 'json' | 'csv'
+
 export interface DataCollectOptions {
   org: string
   api_url: string
@@ -41,5 +43,10 @@ export interface DataCollectOptions {
   app_private_key: string | undefined
   app_installation_id: string | undefined
   include_hooks: boolean | undefined
-  output_csv: boolean | undefined
+  output_file_type: OutputFileType
+}
+
+export interface CollectData {
+  canCollectData(): boolean
+  collectData(): Promise<void>
 }

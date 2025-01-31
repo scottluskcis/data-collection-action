@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import { collectData } from './data.js'
-import { AuthType, DataCollectOptions } from './types.js'
+import { AuthType, DataCollectOptions, OutputFileType } from './types.js'
 
 /**
  * The main function for the action.
@@ -23,7 +23,7 @@ export async function run(): Promise<void> {
       app_private_key: core.getInput('app_private_key'),
       app_installation_id: core.getInput('app_installation_id'),
       include_hooks: core.getInput('include_hooks') === 'true' ? true : false,
-      output_csv: core.getInput('output_csv') === 'true' ? true : false
+      output_file_type: core.getInput('output_file_type') as OutputFileType
     }
 
     // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true

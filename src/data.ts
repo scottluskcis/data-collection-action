@@ -1,11 +1,26 @@
 import fs from 'fs/promises'
+import { json2csv } from 'json-2-csv'
 import { Octokit } from 'octokit'
-import { DataCollectOptions, RepoStats, RepoType, Webhook } from './types.js'
+import {
+  CollectData,
+  DataCollectOptions,
+  RepoStats,
+  RepoType,
+  Webhook
+} from './types.js'
 import { createClient } from './client.js'
 
-const getRunnerCount = async (octokit: Octokit, org: string, repo: string) => {
-  try {
-    const { data: runners } = await octokit.request(
+class DataCollector implements CollectData {
+  private octokit: Octokit
+  private options: DataCollectOptions
+
+  constructor(octokit: Octokit, options: DataCollectOptions) {
+    this.octokit = octokit
+    this.options = options
+  }
+
+  getRunnerCount = async (org: string, repo: string): Promise<number> => {
+    const { data: runners } = await this.octokit.request(
       'GET /repos/{owner}/{repo}/actions/runners',
       {
         owner: org,
@@ -14,16 +29,10 @@ const getRunnerCount = async (octokit: Octokit, org: string, repo: string) => {
       }
     )
     return runners.total_count
-  } catch (e: unknown) {
-    const error = e as Error
-    console.error(`Error getting runners for ${org}/${repo}: ${error.message}`)
-    return null
   }
-}
 
-const getSecretsCount = async (octokit: Octokit, org: string, repo: string) => {
-  try {
-    const { data: secrets } = await octokit.request(
+  getSecretsCount = async (org: string, repo: string): Promise<number> => {
+    const { data: secrets } = await this.octokit.request(
       'GET /repos/{owner}/{repo}/actions/secrets',
       {
         owner: org,
@@ -32,20 +41,10 @@ const getSecretsCount = async (octokit: Octokit, org: string, repo: string) => {
       }
     )
     return secrets.total_count
-  } catch (e: unknown) {
-    const error = e as Error
-    console.error(`Error getting runners for ${org}/${repo}: ${error.message}`)
-    return null
   }
-}
 
-const getVariablesCount = async (
-  octokit: Octokit,
-  org: string,
-  repo: string
-) => {
-  try {
-    const { data: variables } = await octokit.request(
+  getVariablesCount = async (org: string, repo: string): Promise<number> => {
+    const { data: variables } = await this.octokit.request(
       'GET /repos/{owner}/{repo}/actions/variables',
       {
         owner: org,
@@ -54,20 +53,10 @@ const getVariablesCount = async (
       }
     )
     return variables.total_count
-  } catch (e: unknown) {
-    const error = e as Error
-    console.error(`Error getting runners for ${org}/${repo}: ${error.message}`)
-    return null
   }
-}
 
-const getEnvironmentsCount = async (
-  octokit: Octokit,
-  org: string,
-  repo: string
-) => {
-  try {
-    const { data: environments } = await octokit.request(
+  getEnvironmentsCount = async (org: string, repo: string): Promise<number> => {
+    const { data: environments } = await this.octokit.request(
       'GET /repos/{owner}/{repo}/environments',
       {
         owner: org,
@@ -75,27 +64,20 @@ const getEnvironmentsCount = async (
         per_page: 1
       }
     )
-    return environments.total_count
-  } catch (e: unknown) {
-    const error = e as Error
-    console.error(`Error getting runners for ${org}/${repo}: ${error.message}`)
-    return null
+    return environments.total_count || 0
   }
-}
 
-const webhooks = async (
-  octokit: Octokit,
-  org: string,
-  repo: string
-): Promise<Webhook[] | null> => {
-  try {
-    const webhooks = await octokit.paginate('GET /repos/{owner}/{repo}/hooks', {
-      owner: org,
-      repo: repo,
-      per_page: 100
-    })
+  getWebhooks = async (org: string, repo: string): Promise<Webhook[]> => {
+    const webhooks = await this.octokit.paginate(
+      'GET /repos/{owner}/{repo}/hooks',
+      {
+        owner: org,
+        repo: repo,
+        per_page: 100
+      }
+    )
     return webhooks.map((hook) => {
-      return {
+      const webhook: Webhook = {
         name: hook.name,
         url: hook.config.url || '',
         active: hook.active,
@@ -105,91 +87,133 @@ const webhooks = async (
           message: hook.last_response.message
         }
       }
+      return webhook
     })
-  } catch (e: unknown) {
-    const error = e as Error
-    console.error(`Error getting runners for ${org}/${repo}: ${error.message}`)
-    return null
+  }
+
+  getRepoStats = async (org: string, repo: RepoType) => {
+    let result: RepoStats
+    if (repo.archived) {
+      result = {
+        org: org,
+        name: repo.name,
+        archived: repo.archived,
+        created_at: repo.created_at,
+        pushed_at: repo.pushed_at,
+        updated_at: repo.updated_at,
+        runners: null,
+        secrets: null,
+        variables: null,
+        environments: null,
+        hooks: null
+      }
+    } else {
+      const name = repo.name
+
+      const runners = await this.getRunnerCount(org, name)
+      const secrets = await this.getSecretsCount(org, name)
+      const variables = await this.getVariablesCount(org, name)
+      const environments = await this.getEnvironmentsCount(org, name)
+      const hooks = this.options.include_hooks
+        ? await this.getWebhooks(org, name)
+        : null
+
+      result = {
+        org: org,
+        name: name,
+        archived: repo.archived,
+        created_at: repo.created_at,
+        pushed_at: repo.pushed_at,
+        updated_at: repo.updated_at,
+        runners: runners,
+        secrets: secrets,
+        variables: variables,
+        environments: environments,
+        hooks: hooks
+      }
+    }
+    return result
+  }
+
+  canCollectData = (): boolean => {
+    if (!this.options) {
+      return false
+    }
+    if (!this.octokit) {
+      return false
+    }
+    return true
+  }
+
+  convertToCsv = async (file_path: string) => {
+    const data = await fs.readFile(file_path, 'utf8')
+    const jsonData = JSON.parse(data)
+
+    const csv = json2csv(jsonData, {
+      expandArrayObjects: true,
+      expandNestedObjects: true
+    })
+
+    const csv_file = file_path.replace('.json', '.csv')
+    await fs.writeFile(csv_file, csv, 'utf8')
+  }
+
+  collectData = async () => {
+    if (!this.canCollectData()) {
+      throw new Error('Data collection is not configured correctly')
+    }
+
+    const output_file = 'results.json'
+    if (!output_file) {
+      throw new Error('output_file is required')
+    }
+
+    await fs.writeFile(output_file, '[\n', 'utf8')
+
+    const orgs = [this.options.org]
+    for (const org of orgs) {
+      const _repos = this.octokit.paginate.iterator(
+        this.octokit.rest.repos.listForOrg,
+        {
+          org: org,
+          per_page: 100
+        }
+      )
+
+      let first = true
+      for await (const { data: repos } of _repos) {
+        for (const repo of repos) {
+          const result = await this.getRepoStats(org, repo as RepoType)
+          console.log(JSON.stringify(result))
+
+          // Write the result to the file incrementally
+          const json = JSON.stringify(result, null, 2)
+          await fs.appendFile(
+            output_file,
+            `${first ? '' : ',\n'}${json}`,
+            'utf8'
+          )
+          first = false
+        }
+      }
+    }
+
+    await fs.appendFile(output_file, '\n]', 'utf8')
+
+    if (this.options.output_file_type === 'csv') {
+      await this.convertToCsv(output_file)
+    }
   }
 }
 
-const getRepoStats = async (
-  octokit: Octokit,
-  org: string,
-  repo: RepoType,
-  include_hooks: boolean | undefined
-): Promise<RepoStats> => {
-  let result: RepoStats
-  if (repo.archived) {
-    result = {
-      org: org,
-      name: repo.name,
-      archived: repo.archived,
-      created_at: repo.created_at,
-      pushed_at: repo.pushed_at,
-      updated_at: repo.updated_at,
-      runners: null,
-      secrets: null,
-      variables: null,
-      environments: null,
-      hooks: null
-    }
-  } else {
-    const name = repo.name
-
-    const runners = await getRunnerCount(octokit, org, name)
-    const secrets = await getSecretsCount(octokit, org, name)
-    const variables = await getVariablesCount(octokit, org, name)
-    const environments = await getEnvironmentsCount(octokit, org, name)
-    const hooks = include_hooks ? await webhooks(octokit, org, name) : null
-
-    result = {
-      org: org,
-      name: name,
-      archived: repo.archived,
-      created_at: repo.created_at,
-      pushed_at: repo.pushed_at,
-      updated_at: repo.updated_at,
-      runners: runners,
-      secrets: secrets,
-      variables: variables,
-      environments: environments,
-      hooks: hooks
-    }
-  }
-  return result
+const createCollector = async (
+  options: DataCollectOptions
+): Promise<CollectData> => {
+  const octokit = await createClient(options)
+  return new DataCollector(octokit, options)
 }
 
 export async function collectData(options: DataCollectOptions): Promise<void> {
-  const filePath = 'results.json'
-  await fs.writeFile(filePath, '[\n', 'utf8')
-
-  const octokit = await createClient(options)
-  const orgs = [options.org]
-  for (const org of orgs) {
-    const _repos = octokit.paginate.iterator(octokit.rest.repos.listForOrg, {
-      org: org,
-      per_page: 100
-    })
-
-    let first = true
-    for await (const { data: repos } of _repos) {
-      for (const repo of repos) {
-        const result = await getRepoStats(
-          octokit,
-          org,
-          repo as RepoType,
-          options.include_hooks
-        )
-        console.log(JSON.stringify(result))
-
-        // Write the result to the file incrementally
-        const json = JSON.stringify(result, null, 2)
-        await fs.appendFile(filePath, `${first ? '' : ',\n'}${json}`, 'utf8')
-        first = false
-      }
-    }
-  }
-
-  await fs.appendFile(filePath, '\n]', 'utf8')
+  const collector = await createCollector(options)
+  await collector.collectData()
 }
