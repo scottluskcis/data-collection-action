@@ -1,0 +1,36 @@
+name: Dispatch Action
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-action:
+    name: Collect Data Action
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Collect Data
+        id: test-action
+        uses: ./
+        with:
+          org: ${{ vars.ORG }}
+          api_url: ${{ vars.API_URL }}
+          auth_type: ${{ vars.AUTH_TYPE }}
+          client_id: ${{ secrets.CLIENT_ID }}
+          client_secret: ${{ secrets.CLIENT_SECRET }}
+          app_id: ${{ secrets.APP_ID }}
+          app_private_key: ${{ secrets.APP_PRIVATE_KEY }}
+          app_installation_id: ${{ secrets.APP_INSTALLATION_ID }}
+
+      - name: Store results
+        uses: actions/upload-artifact@v4
+        with:
+          name: collected-results
+          path: results.json
