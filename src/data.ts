@@ -1,48 +1,8 @@
 import fs from 'fs/promises'
 import { Octokit } from 'octokit'
-import { components } from '@octokit/openapi-types'
 import { createAppAuth } from '@octokit/auth-app'
 import { createTokenAuth } from '@octokit/auth-token'
-
-interface Webhook {
-  name: string
-  url: string
-  active: boolean
-  last_response: {
-    code: number | null
-    status: string | null
-    message: string | null
-  }
-}
-
-interface RepoStats {
-  org: string
-  name: string
-  archived: boolean
-  created_at: string | null
-  pushed_at: string | null
-  updated_at: string | null
-  runners: number | null
-  secrets: number | null
-  variables: number | null
-  environments: number | null | undefined
-  hooks: Webhook[] | null
-}
-
-type RepoType = components['schemas']['repository']
-
-export interface DataCollectOptions {
-  org: string
-  api_url: string
-  auth_type: string
-  token: string | undefined
-  is_debug: boolean | undefined
-  client_id: string | undefined
-  client_secret: string | undefined
-  app_id: string | undefined
-  app_private_key: string | undefined
-  app_installation_id: string | undefined
-}
+import { DataCollectOptions, RepoStats, RepoType, Webhook } from './types.js'
 
 function getInstallationAuthConfig(options: DataCollectOptions) {
   if (!options.app_id) {
@@ -235,7 +195,8 @@ const webhooks = async (
 const getRepoStats = async (
   octokit: Octokit,
   org: string,
-  repo: RepoType
+  repo: RepoType,
+  include_hooks: boolean | undefined
 ): Promise<RepoStats> => {
   let result: RepoStats
   if (repo.archived) {
@@ -259,7 +220,7 @@ const getRepoStats = async (
     const secrets = await getSecretsCount(octokit, org, name)
     const variables = await getVariablesCount(octokit, org, name)
     const environments = await getEnvironmentsCount(octokit, org, name)
-    const hooks = await webhooks(octokit, org, name)
+    const hooks = include_hooks ? await webhooks(octokit, org, name) : null
 
     result = {
       org: org,
@@ -293,7 +254,12 @@ export async function collectData(options: DataCollectOptions): Promise<void> {
     let first = true
     for await (const { data: repos } of _repos) {
       for (const repo of repos) {
-        const result = await getRepoStats(octokit, org, repo as RepoType)
+        const result = await getRepoStats(
+          octokit,
+          org,
+          repo as RepoType,
+          options.include_hooks
+        )
         console.log(JSON.stringify(result))
 
         // Write the result to the file incrementally
