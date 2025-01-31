@@ -1,4 +1,4 @@
-import fs from 'fs'
+import fs from 'fs/promises'
 import { Octokit } from 'octokit'
 import { components } from '@octokit/openapi-types'
 import { createAppAuth } from '@octokit/auth-app'
@@ -43,9 +43,6 @@ export interface DataCollectOptions {
   app_private_key: string | undefined
   app_installation_id: string | undefined
 }
-
-// TODO: add this back to support ignoring certain orgs
-//const IGNORED_ORGS = ['github', 'actions']
 
 function getInstallationAuthConfig(options: DataCollectOptions) {
   if (!options.app_id) {
@@ -282,18 +279,10 @@ const getRepoStats = async (
 }
 
 export async function collectData(options: DataCollectOptions): Promise<void> {
-  const results = []
+  const filePath = 'results.json'
+  await fs.writeFile(filePath, '[\n', 'utf8')
 
   const octokit = await newClient(options)
-  // TODO: add this back to support list all orgs
-  /*
-  const _orgs = await client.paginate('GET /organizations', {
-    per_page: 100
-  })
-  const orgs = _orgs
-    .map((org) => org.login)
-    .filter((org) => !IGNORED_ORGS.includes(org))
-    */
   const orgs = [options.org]
   for (const org of orgs) {
     const _repos = octokit.paginate.iterator(octokit.rest.repos.listForOrg, {
@@ -301,16 +290,19 @@ export async function collectData(options: DataCollectOptions): Promise<void> {
       per_page: 100
     })
 
+    let first = true
     for await (const { data: repos } of _repos) {
       for (const repo of repos) {
         const result = await getRepoStats(octokit, org, repo as RepoType)
         console.log(JSON.stringify(result))
-        results.push(result)
-      }
-      if (results.length > 100) {
-        break // TODO remove this, adding temporarily to limit the number of requests
+
+        // Write the result to the file incrementally
+        const json = JSON.stringify(result, null, 2)
+        await fs.appendFile(filePath, `${first ? '' : ',\n'}${json}`, 'utf8')
+        first = false
       }
     }
   }
-  fs.writeFileSync('/tmp/results.json', JSON.stringify(results))
+
+  await fs.appendFile(filePath, '\n]', 'utf8')
 }
