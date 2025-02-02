@@ -57,7 +57,7 @@ inputs:
 
 # Define your outputs here.
 outputs:
-  file:
+  output_file:
     description: The generated artifact
 
 runs:

@@ -20,6 +20,8 @@ class DataCollector implements CollectData {
   }
 
   getRunnerCount = async (org: string, repo: string): Promise<number> => {
+    this.options.logMessage(`Getting runners for ${org}/${repo}`, 'debug')
+
     const { data: runners } = await this.octokit.request(
       'GET /repos/{owner}/{repo}/actions/runners',
       {
@@ -32,6 +34,8 @@ class DataCollector implements CollectData {
   }
 
   getSecretsCount = async (org: string, repo: string): Promise<number> => {
+    this.options.logMessage(`Getting secrets for ${org}/${repo}`, 'debug')
+
     const { data: secrets } = await this.octokit.request(
       'GET /repos/{owner}/{repo}/actions/secrets',
       {
@@ -44,6 +48,8 @@ class DataCollector implements CollectData {
   }
 
   getVariablesCount = async (org: string, repo: string): Promise<number> => {
+    this.options.logMessage(`Getting variables for ${org}/${repo}`, 'debug')
+
     const { data: variables } = await this.octokit.request(
       'GET /repos/{owner}/{repo}/actions/variables',
       {
@@ -56,6 +62,8 @@ class DataCollector implements CollectData {
   }
 
   getEnvironmentsCount = async (org: string, repo: string): Promise<number> => {
+    this.options.logMessage(`Getting environments for ${org}/${repo}`, 'debug')
+
     const { data: environments } = await this.octokit.request(
       'GET /repos/{owner}/{repo}/environments',
       {
@@ -68,6 +76,8 @@ class DataCollector implements CollectData {
   }
 
   getWebhooks = async (org: string, repo: string): Promise<Webhook[]> => {
+    this.options.logMessage(`Getting webhooks for ${org}/${repo}`, 'debug')
+
     const webhooks = await this.octokit.paginate(
       'GET /repos/{owner}/{repo}/hooks',
       {
@@ -92,6 +102,8 @@ class DataCollector implements CollectData {
   }
 
   getRepoStats = async (org: string, repo: RepoType) => {
+    this.options.logMessage(`Getting stats for ${org}/${repo.name}`, 'debug')
+
     let result: RepoStats
     if (repo.archived) {
       result = {
@@ -136,6 +148,8 @@ class DataCollector implements CollectData {
   }
 
   canCollectData = (): boolean => {
+    this.options.logMessage('Checking if data can be collected', 'info')
+
     if (!this.options) {
       return false
     }
@@ -146,6 +160,8 @@ class DataCollector implements CollectData {
   }
 
   convertToCsv = async (file_path: string): Promise<string> => {
+    this.options.logMessage('Converting to CSV', 'info')
+
     const data = await fs.readFile(file_path, 'utf8')
     const jsonData = JSON.parse(data)
 
@@ -161,6 +177,8 @@ class DataCollector implements CollectData {
   }
 
   collectData = async (): Promise<string> => {
+    this.options.logMessage('Collecting data', 'info')
+
     if (!this.canCollectData()) {
       throw new Error('Data collection is not configured correctly')
     }
@@ -170,6 +188,8 @@ class DataCollector implements CollectData {
 
     const orgs = [this.options.org]
     for (const org of orgs) {
+      this.options.logMessage(`Getting repos for ${org}`, 'debug')
+
       const _repos = this.octokit.paginate.iterator(
         this.octokit.rest.repos.listForOrg,
         {
@@ -182,7 +202,7 @@ class DataCollector implements CollectData {
       for await (const { data: repos } of _repos) {
         for (const repo of repos) {
           const result = await this.getRepoStats(org, repo as RepoType)
-          console.log(JSON.stringify(result))
+          this.options.logMessage(JSON.stringify(result), 'debug')
 
           const json = JSON.stringify(result, null, 2)
           await fs.appendFile(
