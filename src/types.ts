@@ -48,5 +48,5 @@ export interface DataCollectOptions {
 
 export interface CollectData {
   canCollectData(): boolean
-  collectData(): Promise<void>
+  collectData(): Promise<string>
 }

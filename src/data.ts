@@ -145,7 +145,7 @@ class DataCollector implements CollectData {
     return true
   }
 
-  convertToCsv = async (file_path: string) => {
+  convertToCsv = async (file_path: string): Promise<string> => {
     const data = await fs.readFile(file_path, 'utf8')
     const jsonData = JSON.parse(data)
 
@@ -156,19 +156,17 @@ class DataCollector implements CollectData {
 
     const csv_file = file_path.replace('.json', '.csv')
     await fs.writeFile(csv_file, csv, 'utf8')
+
+    return csv_file
   }
 
-  collectData = async () => {
+  collectData = async (): Promise<string> => {
     if (!this.canCollectData()) {
       throw new Error('Data collection is not configured correctly')
     }
 
-    const output_file = 'results.json'
-    if (!output_file) {
-      throw new Error('output_file is required')
-    }
-
-    await fs.writeFile(output_file, '[\n', 'utf8')
+    const json_output_file = 'results.json'
+    await fs.writeFile(json_output_file, '[\n', 'utf8')
 
     const orgs = [this.options.org]
     for (const org of orgs) {
@@ -186,10 +184,9 @@ class DataCollector implements CollectData {
           const result = await this.getRepoStats(org, repo as RepoType)
           console.log(JSON.stringify(result))
 
-          // Write the result to the file incrementally
           const json = JSON.stringify(result, null, 2)
           await fs.appendFile(
-            output_file,
+            json_output_file,
             `${first ? '' : ',\n'}${json}`,
             'utf8'
           )
@@ -198,10 +195,13 @@ class DataCollector implements CollectData {
       }
     }
 
-    await fs.appendFile(output_file, '\n]', 'utf8')
+    await fs.appendFile(json_output_file, '\n]', 'utf8')
 
     if (this.options.output_file_type === 'csv') {
-      await this.convertToCsv(output_file)
+      const csv_output_file = await this.convertToCsv(json_output_file)
+      return csv_output_file
+    } else {
+      return json_output_file
     }
   }
 }
