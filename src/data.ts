@@ -1,130 +1,28 @@
 import fs from 'fs/promises'
+import { json2csv } from 'json-2-csv'
 import { Octokit } from 'octokit'
-import { components } from '@octokit/openapi-types'
-import { createAppAuth } from '@octokit/auth-app'
-import { createTokenAuth } from '@octokit/auth-token'
+import {
+  CollectData,
+  DataCollectOptions,
+  RepoStats,
+  RepoType,
+  Webhook
+} from './types.js'
+import { createClient } from './client.js'
 
-interface Webhook {
-  name: string
-  url: string
-  active: boolean
-  last_response: {
-    code: number | null
-    status: string | null
-    message: string | null
-  }
-}
+export class DataCollector implements CollectData {
+  private octokit: Octokit
+  private options: DataCollectOptions
 
-interface RepoStats {
-  org: string
-  name: string
-  archived: boolean
-  created_at: string | null
-  pushed_at: string | null
-  updated_at: string | null
-  runners: number | null
-  secrets: number | null
-  variables: number | null
-  environments: number | null | undefined
-  hooks: Webhook[] | null
-}
-
-type RepoType = components['schemas']['repository']
-
-export interface DataCollectOptions {
-  org: string
-  api_url: string
-  auth_type: string
-  token: string | undefined
-  is_debug: boolean | undefined
-  client_id: string | undefined
-  client_secret: string | undefined
-  app_id: string | undefined
-  app_private_key: string | undefined
-  app_installation_id: string | undefined
-}
-
-function getInstallationAuthConfig(options: DataCollectOptions) {
-  if (!options.app_id) {
-    throw new Error('app_id is required')
-  }
-  if (!options.app_private_key) {
-    throw new Error('app_private_key is required')
-  }
-  if (!options.app_installation_id) {
-    throw new Error('app_installation_id is required')
+  constructor(octokit: Octokit, options: DataCollectOptions) {
+    this.octokit = octokit
+    this.options = options
   }
 
-  const authStrategy = createAppAuth
-  const auth = {
-    appId: parseInt(options.app_id),
-    privateKey: options.app_private_key,
-    installationId: parseInt(options.app_installation_id)
-  }
+  getRunnerCount = async (org: string, repo: string): Promise<number> => {
+    this.options.logMessage(`Getting runners for ${org}/${repo}`, 'debug')
 
-  return { authStrategy, auth }
-}
-
-function getAppAuthConfig(options: DataCollectOptions) {
-  if (!options.app_id) {
-    throw new Error('app_id is required')
-  }
-  if (!options.app_private_key) {
-    throw new Error('app_private_key is required')
-  }
-  if (!options.client_id) {
-    throw new Error('client_id is required')
-  }
-  if (!options.client_secret) {
-    throw new Error('client_secret is required')
-  }
-
-  const authStrategy = createAppAuth
-  const auth = {
-    appId: parseInt(options.app_id),
-    privateKey: options.app_private_key,
-    clientId: options.client_id,
-    clientSecret: options.client_secret
-  }
-
-  return { authStrategy, auth }
-}
-
-function getDefaultAuthConfig(options: DataCollectOptions) {
-  if (!options.token) {
-    throw new Error('token is required')
-  }
-
-  return { authStrategy: createTokenAuth, auth: options.token }
-}
-
-function getAuthConfig(options: DataCollectOptions) {
-  if (options.auth_type === 'installation') {
-    return getInstallationAuthConfig(options)
-  } else if (options.auth_type === 'app') {
-    return getAppAuthConfig(options)
-  } else {
-    return getDefaultAuthConfig(options)
-  }
-}
-
-async function newClient(options: DataCollectOptions): Promise<Octokit> {
-  if (!options) {
-    throw new Error('options are required')
-  }
-
-  const { authStrategy, auth } = getAuthConfig(options)
-  const octokitOptions = {
-    authStrategy,
-    auth
-  }
-
-  return new Octokit(octokitOptions)
-}
-
-const getRunnerCount = async (octokit: Octokit, org: string, repo: string) => {
-  try {
-    const { data: runners } = await octokit.request(
+    const { data: runners } = await this.octokit.request(
       'GET /repos/{owner}/{repo}/actions/runners',
       {
         owner: org,
@@ -133,16 +31,12 @@ const getRunnerCount = async (octokit: Octokit, org: string, repo: string) => {
       }
     )
     return runners.total_count
-  } catch (e: unknown) {
-    const error = e as Error
-    console.error(`Error getting runners for ${org}/${repo}: ${error.message}`)
-    return null
   }
-}
 
-const getSecretsCount = async (octokit: Octokit, org: string, repo: string) => {
-  try {
-    const { data: secrets } = await octokit.request(
+  getSecretsCount = async (org: string, repo: string): Promise<number> => {
+    this.options.logMessage(`Getting secrets for ${org}/${repo}`, 'debug')
+
+    const { data: secrets } = await this.octokit.request(
       'GET /repos/{owner}/{repo}/actions/secrets',
       {
         owner: org,
@@ -151,20 +45,12 @@ const getSecretsCount = async (octokit: Octokit, org: string, repo: string) => {
       }
     )
     return secrets.total_count
-  } catch (e: unknown) {
-    const error = e as Error
-    console.error(`Error getting runners for ${org}/${repo}: ${error.message}`)
-    return null
   }
-}
 
-const getVariablesCount = async (
-  octokit: Octokit,
-  org: string,
-  repo: string
-) => {
-  try {
-    const { data: variables } = await octokit.request(
+  getVariablesCount = async (org: string, repo: string): Promise<number> => {
+    this.options.logMessage(`Getting variables for ${org}/${repo}`, 'debug')
+
+    const { data: variables } = await this.octokit.request(
       'GET /repos/{owner}/{repo}/actions/variables',
       {
         owner: org,
@@ -173,20 +59,12 @@ const getVariablesCount = async (
       }
     )
     return variables.total_count
-  } catch (e: unknown) {
-    const error = e as Error
-    console.error(`Error getting runners for ${org}/${repo}: ${error.message}`)
-    return null
   }
-}
 
-const getEnvironmentsCount = async (
-  octokit: Octokit,
-  org: string,
-  repo: string
-) => {
-  try {
-    const { data: environments } = await octokit.request(
+  getEnvironmentsCount = async (org: string, repo: string): Promise<number> => {
+    this.options.logMessage(`Getting environments for ${org}/${repo}`, 'debug')
+
+    const { data: environments } = await this.octokit.request(
       'GET /repos/{owner}/{repo}/environments',
       {
         owner: org,
@@ -194,27 +72,22 @@ const getEnvironmentsCount = async (
         per_page: 1
       }
     )
-    return environments.total_count
-  } catch (e: unknown) {
-    const error = e as Error
-    console.error(`Error getting runners for ${org}/${repo}: ${error.message}`)
-    return null
+    return environments.total_count || 0
   }
-}
 
-const webhooks = async (
-  octokit: Octokit,
-  org: string,
-  repo: string
-): Promise<Webhook[] | null> => {
-  try {
-    const webhooks = await octokit.paginate('GET /repos/{owner}/{repo}/hooks', {
-      owner: org,
-      repo: repo,
-      per_page: 100
-    })
+  getWebhooks = async (org: string, repo: string): Promise<Webhook[]> => {
+    this.options.logMessage(`Getting webhooks for ${org}/${repo}`, 'debug')
+
+    const webhooks = await this.octokit.paginate(
+      'GET /repos/{owner}/{repo}/hooks',
+      {
+        owner: org,
+        repo: repo,
+        per_page: 100
+      }
+    )
     return webhooks.map((hook) => {
-      return {
+      const webhook: Webhook = {
         name: hook.name,
         url: hook.config.url || '',
         active: hook.active,
@@ -224,85 +97,159 @@ const webhooks = async (
           message: hook.last_response.message
         }
       }
+      return webhook
     })
-  } catch (e: unknown) {
-    const error = e as Error
-    console.error(`Error getting runners for ${org}/${repo}: ${error.message}`)
-    return null
   }
-}
 
-const getRepoStats = async (
-  octokit: Octokit,
-  org: string,
-  repo: RepoType
-): Promise<RepoStats> => {
-  let result: RepoStats
-  if (repo.archived) {
-    result = {
-      org: org,
-      name: repo.name,
-      archived: repo.archived,
-      created_at: repo.created_at,
-      pushed_at: repo.pushed_at,
-      updated_at: repo.updated_at,
-      runners: null,
-      secrets: null,
-      variables: null,
-      environments: null,
-      hooks: null
-    }
-  } else {
-    const name = repo.name
+  getRepoStats = async (org: string, repo: RepoType) => {
+    this.options.logMessage(`Getting stats for ${org}/${repo.name}`, 'debug')
 
-    const runners = await getRunnerCount(octokit, org, name)
-    const secrets = await getSecretsCount(octokit, org, name)
-    const variables = await getVariablesCount(octokit, org, name)
-    const environments = await getEnvironmentsCount(octokit, org, name)
-    const hooks = await webhooks(octokit, org, name)
+    let result: RepoStats
+    if (repo.archived) {
+      this.options.logMessage(
+        `Skipping retrieving detailed stats for archived repo ${org}/${repo.name}`,
+        'info'
+      )
 
-    result = {
-      org: org,
-      name: name,
-      archived: repo.archived,
-      created_at: repo.created_at,
-      pushed_at: repo.pushed_at,
-      updated_at: repo.updated_at,
-      runners: runners,
-      secrets: secrets,
-      variables: variables,
-      environments: environments,
-      hooks: hooks
-    }
-  }
-  return result
-}
+      result = {
+        org: org,
+        name: repo.name,
+        archived: repo.archived,
+        created_at: repo.created_at,
+        pushed_at: repo.pushed_at,
+        updated_at: repo.updated_at,
+        runners: null,
+        secrets: null,
+        variables: null,
+        environments: null,
+        hooks: null
+      }
+    } else {
+      this.options.logMessage(
+        `Retrieving detailed stats for repo ${org}/${repo.name}`,
+        'info'
+      )
 
-export async function collectData(options: DataCollectOptions): Promise<void> {
-  const filePath = 'results.json'
-  await fs.writeFile(filePath, '[\n', 'utf8')
+      const name = repo.name
 
-  const octokit = await newClient(options)
-  const orgs = [options.org]
-  for (const org of orgs) {
-    const _repos = octokit.paginate.iterator(octokit.rest.repos.listForOrg, {
-      org: org,
-      per_page: 100
-    })
+      const runners = await this.getRunnerCount(org, name)
+      const secrets = await this.getSecretsCount(org, name)
+      const variables = await this.getVariablesCount(org, name)
+      const environments = await this.getEnvironmentsCount(org, name)
+      const hooks = this.options.include_hooks
+        ? await this.getWebhooks(org, name)
+        : null
 
-    let first = true
-    for await (const { data: repos } of _repos) {
-      for (const repo of repos) {
-        const result = await getRepoStats(octokit, org, repo as RepoType)
-        console.log(JSON.stringify(result))
-
-        // Write the result to the file incrementally
-        const json = JSON.stringify(result, null, 2)
-        await fs.appendFile(filePath, `${first ? '' : ',\n'}${json}`, 'utf8')
-        first = false
+      result = {
+        org: org,
+        name: name,
+        archived: repo.archived,
+        created_at: repo.created_at,
+        pushed_at: repo.pushed_at,
+        updated_at: repo.updated_at,
+        runners: runners,
+        secrets: secrets,
+        variables: variables,
+        environments: environments,
+        hooks: hooks
       }
     }
+    return result
   }
 
-  await fs.appendFile(filePath, '\n]', 'utf8')
+  canCollectData = (): boolean => {
+    this.options.logMessage('Checking if data can be collected', 'info')
+
+    if (!this.options) {
+      return false
+    }
+    if (!this.octokit) {
+      return false
+    }
+
+    this.options.logMessage('Data can be collected', 'info')
+    return true
+  }
+
+  convertToCsv = async (file_path: string): Promise<string> => {
+    this.options.logMessage('Converting to CSV', 'info')
+
+    const data = await fs.readFile(file_path, 'utf8')
+    const jsonData = JSON.parse(data)
+
+    const csv = json2csv(jsonData, {
+      expandArrayObjects: true,
+      expandNestedObjects: true
+    })
+
+    const csv_file = file_path.replace('.json', '.csv')
+    await fs.writeFile(csv_file, csv, 'utf8')
+
+    this.options.logMessage('Converted to CSV', 'info')
+
+    return csv_file
+  }
+
+  collectData = async (): Promise<string> => {
+    this.options.logMessage('Collecting data', 'info')
+
+    if (!this.canCollectData()) {
+      throw new Error('Data collection is not configured correctly')
+    }
+
+    const json_output_file = 'results.json'
+    await fs.writeFile(json_output_file, '[\n', 'utf8')
+
+    const orgs = [this.options.org]
+    for (const org of orgs) {
+      this.options.logMessage(`Getting repos for ${org}`, 'debug')
+
+      const _repos = this.octokit.paginate.iterator(
+        this.octokit.rest.repos.listForOrg,
+        {
+          org: org,
+          per_page: 100
+        }
+      )
+
+      let first = true
+      for await (const { data: repos } of _repos) {
+        for (const repo of repos) {
+          const result = await this.getRepoStats(org, repo as RepoType)
+          this.options.logMessage(JSON.stringify(result), 'debug')
+
+          const json = JSON.stringify(result, null, 2)
+          await fs.appendFile(
+            json_output_file,
+            `${first ? '' : ',\n'}${json}`,
+            'utf8'
+          )
+          first = false
+        }
+      }
+    }
+
+    await fs.appendFile(json_output_file, '\n]', 'utf8')
+
+    if (this.options.output_file_type === 'csv') {
+      const csv_output_file = await this.convertToCsv(json_output_file)
+      return csv_output_file
+    } else {
+      return json_output_file
+    }
+  }
+}
+
+const createCollector = async (
+  options: DataCollectOptions
+): Promise<CollectData> => {
+  const octokit = await createClient(options)
+  return new DataCollector(octokit, options)
+}
+
+export async function collectData(
+  options: DataCollectOptions
+): Promise<string> {
+  const collector = await createCollector(options)
+  return await collector.collectData()
 }

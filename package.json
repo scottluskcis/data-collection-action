@@ -41,6 +41,7 @@
     "@octokit/auth-app": "^7.1.4",
     "@octokit/auth-token": "^5.1.2",
     "@octokit/openapi-types": "^23.0.1",
+    "json-2-csv": "^5.5.8",
     "octokit": "^4.1.0"
   },
   "devDependencies": {

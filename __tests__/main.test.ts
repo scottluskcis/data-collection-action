@@ -29,8 +29,8 @@ describe('main.ts', () => {
       return inputs[name]
     })
 
-    // Mock the collectData function so that it does not actually run.
-    collectData.mockImplementation(() => Promise.resolve())
+    // Mock the collectData function so that it returns a valid output file name.
+    collectData.mockImplementation(() => Promise.resolve('output-file.json'))
   })
 
   afterEach(() => {
@@ -43,9 +43,9 @@ describe('main.ts', () => {
     // Verify the file output was set.
     expect(core.setOutput).toHaveBeenNthCalledWith(
       1,
-      'file',
-      // Simple regex to match a time string in the format HH:MM:SS.
-      expect.stringMatching(/^\d{2}:\d{2}:\d{2}/)
+      'output_file',
+      // Simple regex to match a file name ending with .json or .csv.
+      expect.stringMatching(/\.(json|csv)$/)
     )
   })
 
