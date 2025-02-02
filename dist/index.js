@@ -29,27 +29,42 @@ import require$$2$2 from 'child_process';
 import require$$6$1 from 'timers';
 import fs from 'fs/promises';
 
+function _mergeNamespaces(n, m) {
+	m.forEach(function (e) {
+		e && typeof e !== 'string' && !Array.isArray(e) && Object.keys(e).forEach(function (k) {
+			if (k !== 'default' && !(k in n)) {
+				var d = Object.getOwnPropertyDescriptor(e, k);
+				Object.defineProperty(n, k, d.get ? d : {
+					enumerable: true,
+					get: function () { return e[k]; }
+				});
+			}
+		});
+	});
+	return Object.freeze(n);
+}
+
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
 function getDefaultExportFromCjs (x) {
 	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
 }
 
-var core = {};
+var core$2 = {};
 
 var command = {};
 
-var utils$1 = {};
+var utils$3 = {};
 
-var hasRequiredUtils$1;
+var hasRequiredUtils$3;
 
-function requireUtils$1 () {
-	if (hasRequiredUtils$1) return utils$1;
-	hasRequiredUtils$1 = 1;
+function requireUtils$3 () {
+	if (hasRequiredUtils$3) return utils$3;
+	hasRequiredUtils$3 = 1;
 	// We use any as a valid input type
 	/* eslint-disable @typescript-eslint/no-explicit-any */
-	Object.defineProperty(utils$1, "__esModule", { value: true });
-	utils$1.toCommandProperties = utils$1.toCommandValue = undefined;
+	Object.defineProperty(utils$3, "__esModule", { value: true });
+	utils$3.toCommandProperties = utils$3.toCommandValue = undefined;
 	/**
 	 * Sanitizes an input into a string so it can be passed into issueCommand safely
 	 * @param input input to sanitize into a string
@@ -63,7 +78,7 @@ function requireUtils$1 () {
 	    }
 	    return JSON.stringify(input);
 	}
-	utils$1.toCommandValue = toCommandValue;
+	utils$3.toCommandValue = toCommandValue;
 	/**
 	 *
 	 * @param annotationProperties
@@ -83,9 +98,9 @@ function requireUtils$1 () {
 	        endColumn: annotationProperties.endColumn
 	    };
 	}
-	utils$1.toCommandProperties = toCommandProperties;
+	utils$3.toCommandProperties = toCommandProperties;
 	
-	return utils$1;
+	return utils$3;
 }
 
 var hasRequiredCommand;
@@ -119,7 +134,7 @@ function requireCommand () {
 	Object.defineProperty(command, "__esModule", { value: true });
 	command.issue = command.issueCommand = undefined;
 	const os = __importStar(require$$0);
-	const utils_1 = requireUtils$1();
+	const utils_1 = requireUtils$3();
 	/**
 	 * Commands
 	 *
@@ -229,7 +244,7 @@ function requireFileCommand () {
 	const crypto = __importStar(require$$0$1);
 	const fs = __importStar(require$$1);
 	const os = __importStar(require$$0);
-	const utils_1 = requireUtils$1();
+	const utils_1 = requireUtils$3();
 	function issueFileCommand(command, message) {
 	    const filePath = process.env[`GITHUB_${command}`];
 	    if (!filePath) {
@@ -962,12 +977,12 @@ function requireErrors () {
 	return errors;
 }
 
-var constants$4;
-var hasRequiredConstants$4;
+var constants$5;
+var hasRequiredConstants$5;
 
-function requireConstants$4 () {
-	if (hasRequiredConstants$4) return constants$4;
-	hasRequiredConstants$4 = 1;
+function requireConstants$5 () {
+	if (hasRequiredConstants$5) return constants$5;
+	hasRequiredConstants$5 = 1;
 
 	/** @type {Record<string, string | undefined>} */
 	const headerNameLowerCasedRecord = {};
@@ -1081,11 +1096,11 @@ function requireConstants$4 () {
 	// Note: object prototypes should not be able to be referenced. e.g. `Object#hasOwnProperty`.
 	Object.setPrototypeOf(headerNameLowerCasedRecord, null);
 
-	constants$4 = {
+	constants$5 = {
 	  wellknownHeaderNames,
 	  headerNameLowerCasedRecord
 	};
-	return constants$4;
+	return constants$5;
 }
 
 var util$6;
@@ -1104,7 +1119,7 @@ function requireUtil$6 () {
 	const { Blob } = require$$7;
 	const nodeUtil = require$$0$2;
 	const { stringify } = require$$8;
-	const { headerNameLowerCasedRecord } = requireConstants$4();
+	const { headerNameLowerCasedRecord } = requireConstants$5();
 
 	const [nodeMajor, nodeMinor] = process.versions.node.split('.').map(v => Number(v));
 
@@ -3350,12 +3365,12 @@ function requireMain () {
 	return main.exports;
 }
 
-var constants$3;
-var hasRequiredConstants$3;
+var constants$4;
+var hasRequiredConstants$4;
 
-function requireConstants$3 () {
-	if (hasRequiredConstants$3) return constants$3;
-	hasRequiredConstants$3 = 1;
+function requireConstants$4 () {
+	if (hasRequiredConstants$4) return constants$4;
+	hasRequiredConstants$4 = 1;
 
 	const { MessageChannel, receiveMessageOnPort } = require$$0$8;
 
@@ -3481,7 +3496,7 @@ function requireConstants$3 () {
 	    return receiveMessageOnPort(channel.port2).message
 	  };
 
-	constants$3 = {
+	constants$4 = {
 	  DOMException,
 	  structuredClone,
 	  subresource,
@@ -3506,7 +3521,7 @@ function requireConstants$3 () {
 	  forbiddenMethodsSet,
 	  referrerPolicySet
 	};
-	return constants$3;
+	return constants$4;
 }
 
 var global$2;
@@ -3564,7 +3579,7 @@ function requireUtil$5 () {
 	if (hasRequiredUtil$5) return util$5;
 	hasRequiredUtil$5 = 1;
 
-	const { redirectStatusSet, referrerPolicySet: referrerPolicyTokens, badPortsSet } = requireConstants$3();
+	const { redirectStatusSet, referrerPolicySet: referrerPolicyTokens, badPortsSet } = requireConstants$4();
 	const { getGlobalOrigin } = requireGlobal$1();
 	const { performance } = require$$2$1;
 	const { isBlobLike, toUSVString, ReadableStreamFrom } = requireUtil$6();
@@ -6661,7 +6676,7 @@ function requireBody () {
 	const { FormData } = requireFormdata();
 	const { kState } = requireSymbols$3();
 	const { webidl } = requireWebidl();
-	const { DOMException, structuredClone } = requireConstants$3();
+	const { DOMException, structuredClone } = requireConstants$4();
 	const { Blob, File: NativeFile } = require$$7;
 	const { kBodyUsed } = requireSymbols$4();
 	const assert = require$$0$3;
@@ -8193,17 +8208,17 @@ function requireConnect () {
 	return connect;
 }
 
-var constants$2 = {};
+var constants$3 = {};
 
-var utils = {};
+var utils$2 = {};
 
-var hasRequiredUtils;
+var hasRequiredUtils$2;
 
-function requireUtils () {
-	if (hasRequiredUtils) return utils;
-	hasRequiredUtils = 1;
-	Object.defineProperty(utils, "__esModule", { value: true });
-	utils.enumToMap = undefined;
+function requireUtils$2 () {
+	if (hasRequiredUtils$2) return utils$2;
+	hasRequiredUtils$2 = 1;
+	Object.defineProperty(utils$2, "__esModule", { value: true });
+	utils$2.enumToMap = undefined;
 	function enumToMap(obj) {
 	    const res = {};
 	    Object.keys(obj).forEach((key) => {
@@ -8214,20 +8229,20 @@ function requireUtils () {
 	    });
 	    return res;
 	}
-	utils.enumToMap = enumToMap;
+	utils$2.enumToMap = enumToMap;
 	
-	return utils;
+	return utils$2;
 }
 
-var hasRequiredConstants$2;
+var hasRequiredConstants$3;
 
-function requireConstants$2 () {
-	if (hasRequiredConstants$2) return constants$2;
-	hasRequiredConstants$2 = 1;
+function requireConstants$3 () {
+	if (hasRequiredConstants$3) return constants$3;
+	hasRequiredConstants$3 = 1;
 	(function (exports) {
 		Object.defineProperty(exports, "__esModule", { value: true });
 		exports.SPECIAL_HEADERS = exports.HEADER_STATE = exports.MINOR = exports.MAJOR = exports.CONNECTION_TOKEN_CHARS = exports.HEADER_CHARS = exports.TOKEN = exports.STRICT_TOKEN = exports.HEX = exports.URL_CHAR = exports.STRICT_URL_CHAR = exports.USERINFO_CHARS = exports.MARK = exports.ALPHANUM = exports.NUM = exports.HEX_MAP = exports.NUM_MAP = exports.ALPHA = exports.FINISH = exports.H_METHOD_MAP = exports.METHOD_MAP = exports.METHODS_RTSP = exports.METHODS_ICE = exports.METHODS_HTTP = exports.METHODS = exports.LENIENT_FLAGS = exports.FLAGS = exports.TYPE = exports.ERROR = undefined;
-		const utils_1 = requireUtils();
+		const utils_1 = requireUtils$2();
 		(function (ERROR) {
 		    ERROR[ERROR["OK"] = 0] = "OK";
 		    ERROR[ERROR["INTERNAL"] = 1] = "INTERNAL";
@@ -8496,8 +8511,8 @@ function requireConstants$2 () {
 		    'upgrade': HEADER_STATE.UPGRADE,
 		};
 		
-	} (constants$2));
-	return constants$2;
+	} (constants$3));
+	return constants$3;
 }
 
 var RedirectHandler_1;
@@ -9247,7 +9262,7 @@ function requireClient () {
 	  resume(client);
 	}
 
-	const constants = requireConstants$2();
+	const constants = requireConstants$3();
 	const createRedirectInterceptor = requireRedirectInterceptor();
 	const EMPTY_BUF = Buffer.alloc(0);
 
@@ -15555,7 +15570,7 @@ function requireResponse () {
 	  redirectStatusSet,
 	  nullBodyStatus,
 	  DOMException
-	} = requireConstants$3();
+	} = requireConstants$4();
 	const { kState, kHeaders, kGuard, kRealm } = requireSymbols$3();
 	const { webidl } = requireWebidl();
 	const { FormData } = requireFormdata();
@@ -16139,7 +16154,7 @@ function requireRequest () {
 	  requestCredentials,
 	  requestCache,
 	  requestDuplex
-	} = requireConstants$3();
+	} = requireConstants$4();
 	const { kEnumerableProperty } = util;
 	const { kHeaders, kSignal, kState, kGuard, kRealm } = requireSymbols$3();
 	const { webidl } = requireWebidl();
@@ -17121,7 +17136,7 @@ function requireFetch () {
 	  requestBodyHeader,
 	  subresourceSet,
 	  DOMException
-	} = requireConstants$3();
+	} = requireConstants$4();
 	const { kHeadersList } = requireSymbols$4();
 	const EE = require$$4;
 	const { Readable, pipeline } = require$$0$4;
@@ -19562,7 +19577,7 @@ function requireUtil$3 () {
 	} = requireSymbols$2();
 	const { ProgressEvent } = requireProgressevent();
 	const { getEncoding } = requireEncoding();
-	const { DOMException } = requireConstants$3();
+	const { DOMException } = requireConstants$4();
 	const { serializeAMimeType, parseMIMEType } = requireDataURL();
 	const { types } = require$$0$2;
 	const { StringDecoder } = require$$6;
@@ -21366,12 +21381,12 @@ function requireCachestorage () {
 	return cachestorage;
 }
 
-var constants$1;
-var hasRequiredConstants$1;
+var constants$2;
+var hasRequiredConstants$2;
 
-function requireConstants$1 () {
-	if (hasRequiredConstants$1) return constants$1;
-	hasRequiredConstants$1 = 1;
+function requireConstants$2 () {
+	if (hasRequiredConstants$2) return constants$2;
+	hasRequiredConstants$2 = 1;
 
 	// https://wicg.github.io/cookie-store/#cookie-maximum-attribute-value-size
 	const maxAttributeValueSize = 1024;
@@ -21379,11 +21394,11 @@ function requireConstants$1 () {
 	// https://wicg.github.io/cookie-store/#cookie-maximum-name-value-pair-size
 	const maxNameValuePairSize = 4096;
 
-	constants$1 = {
+	constants$2 = {
 	  maxAttributeValueSize,
 	  maxNameValuePairSize
 	};
-	return constants$1;
+	return constants$2;
 }
 
 var util$1;
@@ -21692,7 +21707,7 @@ function requireParse () {
 	if (hasRequiredParse) return parse$1;
 	hasRequiredParse = 1;
 
-	const { maxNameValuePairSize, maxAttributeValueSize } = requireConstants$1();
+	const { maxNameValuePairSize, maxAttributeValueSize } = requireConstants$2();
 	const { isCTLExcludingHtab } = requireUtil$1();
 	const { collectASequenceOfCodePointsFast } = requireDataURL();
 	const assert = require$$0$3;
@@ -22202,12 +22217,12 @@ function requireCookies () {
 	return cookies;
 }
 
-var constants;
-var hasRequiredConstants;
+var constants$1;
+var hasRequiredConstants$1;
 
-function requireConstants () {
-	if (hasRequiredConstants) return constants;
-	hasRequiredConstants = 1;
+function requireConstants$1 () {
+	if (hasRequiredConstants$1) return constants$1;
+	hasRequiredConstants$1 = 1;
 
 	// This is a Globally Unique Identifier unique used
 	// to validate that the endpoint accepts websocket
@@ -22249,7 +22264,7 @@ function requireConstants () {
 
 	const emptyBuffer = Buffer.allocUnsafe(0);
 
-	constants = {
+	constants$1 = {
 	  uid,
 	  staticPropertyDescriptors,
 	  states,
@@ -22258,7 +22273,7 @@ function requireConstants () {
 	  parserStates,
 	  emptyBuffer
 	};
-	return constants;
+	return constants$1;
 }
 
 var symbols;
@@ -22600,7 +22615,7 @@ function requireUtil () {
 	hasRequiredUtil = 1;
 
 	const { kReadyState, kController, kResponse, kBinaryType, kWebSocketURL } = requireSymbols();
-	const { states, opcodes } = requireConstants();
+	const { states, opcodes } = requireConstants$1();
 	const { MessageEvent, ErrorEvent } = requireEvents();
 
 	/* globals Blob */
@@ -22808,7 +22823,7 @@ function requireConnection () {
 	hasRequiredConnection = 1;
 
 	const diagnosticsChannel = require$$0$9;
-	const { uid, states } = requireConstants();
+	const { uid, states } = requireConstants$1();
 	const {
 	  kReadyState,
 	  kSentClose,
@@ -23106,7 +23121,7 @@ function requireFrame () {
 	if (hasRequiredFrame) return frame;
 	hasRequiredFrame = 1;
 
-	const { maxUnsigned16Bit } = requireConstants();
+	const { maxUnsigned16Bit } = requireConstants$1();
 
 	/** @type {import('crypto')} */
 	let crypto;
@@ -23189,7 +23204,7 @@ function requireReceiver () {
 
 	const { Writable } = require$$0$4;
 	const diagnosticsChannel = require$$0$9;
-	const { parserStates, opcodes, states, emptyBuffer } = requireConstants();
+	const { parserStates, opcodes, states, emptyBuffer } = requireConstants$1();
 	const { kReadyState, kSentClose, kResponse, kReceivedClose } = requireSymbols();
 	const { isValidStatusCode, failWebsocketConnection, websocketMessageReceived } = requireUtil();
 	const { WebsocketFrameSend } = requireFrame();
@@ -23540,10 +23555,10 @@ function requireWebsocket () {
 	hasRequiredWebsocket = 1;
 
 	const { webidl } = requireWebidl();
-	const { DOMException } = requireConstants$3();
+	const { DOMException } = requireConstants$4();
 	const { URLSerializer } = requireDataURL();
 	const { getGlobalOrigin } = requireGlobal$1();
-	const { staticPropertyDescriptors, states, opcodes, emptyBuffer } = requireConstants();
+	const { staticPropertyDescriptors, states, opcodes, emptyBuffer } = requireConstants$1();
 	const {
 	  kWebSocketURL,
 	  kReadyState,
@@ -26899,10 +26914,10 @@ function requirePlatform () {
 var hasRequiredCore;
 
 function requireCore () {
-	if (hasRequiredCore) return core;
+	if (hasRequiredCore) return core$2;
 	hasRequiredCore = 1;
 	(function (exports) {
-		var __createBinding = (core.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+		var __createBinding = (core$2.__createBinding) || (Object.create ? (function(o, m, k, k2) {
 		    if (k2 === undefined) k2 = k;
 		    var desc = Object.getOwnPropertyDescriptor(m, k);
 		    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
@@ -26913,19 +26928,19 @@ function requireCore () {
 		    if (k2 === undefined) k2 = k;
 		    o[k2] = m[k];
 		}));
-		var __setModuleDefault = (core.__setModuleDefault) || (Object.create ? (function(o, v) {
+		var __setModuleDefault = (core$2.__setModuleDefault) || (Object.create ? (function(o, v) {
 		    Object.defineProperty(o, "default", { enumerable: true, value: v });
 		}) : function(o, v) {
 		    o["default"] = v;
 		});
-		var __importStar = (core.__importStar) || function (mod) {
+		var __importStar = (core$2.__importStar) || function (mod) {
 		    if (mod && mod.__esModule) return mod;
 		    var result = {};
 		    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
 		    __setModuleDefault(result, mod);
 		    return result;
 		};
-		var __awaiter = (core.__awaiter) || function (thisArg, _arguments, P, generator) {
+		var __awaiter = (core$2.__awaiter) || function (thisArg, _arguments, P, generator) {
 		    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
 		    return new (P || (P = Promise))(function (resolve, reject) {
 		        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -26938,7 +26953,7 @@ function requireCore () {
 		exports.platform = exports.toPlatformPath = exports.toWin32Path = exports.toPosixPath = exports.markdownSummary = exports.summary = exports.getIDToken = exports.getState = exports.saveState = exports.group = exports.endGroup = exports.startGroup = exports.info = exports.notice = exports.warning = exports.error = exports.debug = exports.isDebug = exports.setFailed = exports.setCommandEcho = exports.setOutput = exports.getBooleanInput = exports.getMultilineInput = exports.getInput = exports.addPath = exports.setSecret = exports.exportVariable = exports.ExitCode = undefined;
 		const command_1 = requireCommand();
 		const file_command_1 = requireFileCommand();
-		const utils_1 = requireUtils$1();
+		const utils_1 = requireUtils$3();
 		const os = __importStar(require$$0);
 		const path = __importStar(require$$1$5);
 		const oidc_utils_1 = requireOidcUtils();
@@ -27245,11 +27260,1507 @@ function requireCore () {
 		 */
 		exports.platform = __importStar(requirePlatform());
 		
-	} (core));
-	return core;
+	} (core$2));
+	return core$2;
 }
 
 var coreExports = requireCore();
+var core = /*@__PURE__*/getDefaultExportFromCjs(coreExports);
+
+var core$1 = /*#__PURE__*/_mergeNamespaces({
+	__proto__: null,
+	default: core
+}, [coreExports]);
+
+var converter = {};
+
+var constants = {};
+
+var hasRequiredConstants;
+
+function requireConstants () {
+	if (hasRequiredConstants) return constants;
+	hasRequiredConstants = 1;
+	Object.defineProperty(constants, "__esModule", { value: true });
+	constants.excelBOM = constants.defaultCsv2JsonOptions = constants.defaultJson2CsvOptions = constants.errors = undefined;
+	constants.errors = {
+	    optionsRequired: 'Options were not passed and are required.',
+	    json2csv: {
+	        cannotCallOn: 'Cannot call json2csv on',
+	        dataCheckFailure: 'Data provided was not an array of documents.',
+	        notSameSchema: 'Not all documents have the same schema.'
+	    },
+	    csv2json: {
+	        cannotCallOn: 'Cannot call csv2json on',
+	        dataCheckFailure: 'CSV is not a string.'
+	    }
+	};
+	constants.defaultJson2CsvOptions = {
+	    arrayIndexesAsKeys: false,
+	    checkSchemaDifferences: false,
+	    delimiter: {
+	        field: ',',
+	        wrap: '"',
+	        eol: '\n'
+	    },
+	    emptyFieldValue: undefined,
+	    escapeHeaderNestedDots: true,
+	    excelBOM: false,
+	    excludeKeys: [],
+	    expandNestedObjects: true,
+	    expandArrayObjects: false,
+	    prependHeader: true,
+	    preventCsvInjection: false,
+	    sortHeader: false,
+	    trimFieldValues: false,
+	    trimHeaderFields: false,
+	    unwindArrays: false,
+	    useDateIso8601Format: false,
+	    useLocaleFormat: false,
+	    wrapBooleans: false,
+	};
+	constants.defaultCsv2JsonOptions = {
+	    delimiter: {
+	        field: ',',
+	        wrap: '"',
+	        eol: '\n'
+	    },
+	    excelBOM: false,
+	    preventCsvInjection: false,
+	    trimFieldValues: false,
+	    trimHeaderFields: false,
+	};
+	constants.excelBOM = '\ufeff';
+	return constants;
+}
+
+var json2csv = {};
+
+var path = {};
+
+/**
+ * @license MIT
+ * doc-path <https://github.com/mrodrig/doc-path>
+ * Copyright (c) 2015-present, Michael Rodrigues.
+ */
+
+var hasRequiredPath;
+
+function requirePath () {
+	if (hasRequiredPath) return path;
+	hasRequiredPath = 1;
+	Object.defineProperty(path, "__esModule", { value: true });
+	path.setPath = path.evaluatePath = undefined;
+	/**
+	 * Main function that evaluates the path in a particular object
+	 * @throws {Error} possible error if call stack size is exceeded
+	 */
+	function evaluatePath(obj, kp) {
+	    if (!obj) {
+	        return null;
+	    }
+	    const { dotIndex, key, remaining } = state(kp);
+	    const kpVal = typeof obj === 'object' && kp in obj ? obj[kp] : undefined;
+	    const keyVal = typeof obj === 'object' && key in obj ? obj[key] : undefined;
+	    if (dotIndex >= 0 && typeof obj === 'object' && !(kp in obj)) {
+	        const { key: nextKey } = state(remaining);
+	        const nextKeyAsInt = parseInt(nextKey);
+	        // If there's an array at the current key in the object, then iterate over those items evaluating the remaining path
+	        if (Array.isArray(keyVal) && isNaN(nextKeyAsInt)) {
+	            return keyVal.map((doc) => evaluatePath(doc, remaining));
+	        }
+	        // Otherwise, we can just recur
+	        return evaluatePath(keyVal, remaining);
+	    }
+	    else if (Array.isArray(obj)) {
+	        const keyAsInt = parseInt(key);
+	        if (kp === key && dotIndex === -1 && !isNaN(keyAsInt)) {
+	            return keyVal;
+	        }
+	        // If this object is actually an array, then iterate over those items evaluating the path
+	        return obj.map((doc) => evaluatePath(doc, kp));
+	    }
+	    else if (dotIndex >= 0 && kp !== key && typeof obj === 'object' && key in obj) {
+	        // If there's a field with a non-nested dot, then recur into that sub-value
+	        return evaluatePath(keyVal, remaining);
+	    }
+	    else if (dotIndex === -1 && typeof obj === 'object' && key in obj && !(kp in obj)) {
+	        // If the field is here, but the key was escaped
+	        return keyVal;
+	    }
+	    // Otherwise, we can just return value directly
+	    return kpVal;
+	}
+	path.evaluatePath = evaluatePath;
+	/**
+	 * Main function that performs validation before passing off to _sp
+	 * @throws {Error} possible error if call stack size is exceeded
+	 */
+	function setPath(obj, kp, v) {
+	    if (!obj) {
+	        throw new Error('No object was provided.');
+	    }
+	    else if (!kp) {
+	        throw new Error('No keyPath was provided.');
+	    }
+	    return _sp(obj, kp, v);
+	}
+	path.setPath = setPath;
+	// Helper function that will set the value in the provided object/array.
+	function _sp(obj, kp, v) {
+	    const { dotIndex, key, remaining } = state(kp);
+	    // If this is clearly a prototype pollution attempt, then refuse to modify the path
+	    if (kp.startsWith('__proto__') || kp.startsWith('constructor') || kp.startsWith('prototype')) {
+	        return obj;
+	    }
+	    if (dotIndex >= 0) {
+	        const keyAsInt = parseInt(key);
+	        // If there is a '.' in the key path, recur on the subdoc and ...
+	        if (typeof obj === 'object' && obj !== null && !(key in obj) && Array.isArray(obj) && !isNaN(keyAsInt)) {
+	            // If there's no value at obj[key] then populate an empty object
+	            obj[key] = obj[key] ?? {};
+	            // Continue iterating on the rest of the key path to set the appropriate value where intended and then return
+	            _sp(obj[key], remaining, v);
+	            return obj;
+	        }
+	        else if (typeof obj === 'object' && obj !== null && !(key in obj) && Array.isArray(obj)) {
+	            // If this is an array and there are multiple levels of keys to iterate over, recur.
+	            obj.forEach((doc) => _sp(doc, kp, v));
+	            return obj;
+	        }
+	        else if (typeof obj === 'object' && obj !== null && !(key in obj) && !Array.isArray(obj)) {
+	            const { key: nextKey } = state(remaining);
+	            const nextKeyAsInt = parseInt(nextKey);
+	            if (!isNaN(nextKeyAsInt)) {
+	                // If the current key doesn't exist yet and the next key is a number (likely array index), populate an empty array
+	                obj[key] = [];
+	            }
+	            else if (remaining === '') {
+	                // If the remaining key is empty, then a `.` character appeared right at the end of the path and wasn't actually indicating a separate level
+	                obj[kp] = v;
+	                return obj;
+	            }
+	            else {
+	                // If the current key doesn't exist yet, populate it
+	                obj[key] = {};
+	            }
+	        }
+	        _sp(obj[key], remaining, v);
+	    }
+	    else if (Array.isArray(obj)) {
+	        const keyAsInt = parseInt(key);
+	        // If the object is an array and this key is an int (likely array index), then set the value directly and return
+	        if (kp === key && dotIndex === -1 && !isNaN(keyAsInt)) {
+	            obj[key] = v;
+	            return obj;
+	        }
+	        // If this "obj" is actually an array, then we can loop over each of the values and set the path
+	        obj.forEach((doc) => _sp(doc, remaining, v));
+	        return obj;
+	    }
+	    else {
+	        // Otherwise, we can set the path directly
+	        obj[key] = v;
+	    }
+	    return obj;
+	}
+	// Helper function that returns some information necessary to evaluate or set a path  based on the provided keyPath value
+	function state(kp) {
+	    const dotIndex = findFirstNonEscapedDotIndex(kp);
+	    return {
+	        dotIndex,
+	        key: kp.slice(0, dotIndex >= 0 ? dotIndex : undefined).replace(/\\./g, '.'),
+	        remaining: kp.slice(dotIndex + 1)
+	    };
+	}
+	function findFirstNonEscapedDotIndex(kp) {
+	    for (let i = 0; i < kp.length; i++) {
+	        const previousChar = i > 0 ? kp[i - 1] : '', currentChar = kp[i];
+	        if (currentChar === '.' && previousChar !== '\\')
+	            return i;
+	    }
+	    return -1;
+	}
+	return path;
+}
+
+var deeks = {};
+
+var utils$1 = {};
+
+var hasRequiredUtils$1;
+
+function requireUtils$1 () {
+	if (hasRequiredUtils$1) return utils$1;
+	hasRequiredUtils$1 = 1;
+	Object.defineProperty(utils$1, "__esModule", { value: true });
+	utils$1.isDocumentToRecurOn = utils$1.flatten = utils$1.unique = undefined;
+	function unique(array) {
+	    return [...new Set(array)];
+	}
+	utils$1.unique = unique;
+	function flatten(array) {
+	    return [].concat(...array);
+	}
+	utils$1.flatten = flatten;
+	/**
+	 * Returns whether this value is a document to recur on or not
+	 * @param val Any item whose type will be evaluated
+	 * @returns {boolean}
+	 */
+	function isDocumentToRecurOn(val) {
+	    return typeof val === 'object' && val !== null && !Array.isArray(val) && Object.keys(val).length;
+	}
+	utils$1.isDocumentToRecurOn = isDocumentToRecurOn;
+	return utils$1;
+}
+
+var types = {};
+
+var hasRequiredTypes;
+
+function requireTypes () {
+	if (hasRequiredTypes) return types;
+	hasRequiredTypes = 1;
+	Object.defineProperty(types, "__esModule", { value: true });
+	return types;
+}
+
+var hasRequiredDeeks;
+
+function requireDeeks () {
+	if (hasRequiredDeeks) return deeks;
+	hasRequiredDeeks = 1;
+	(function (exports) {
+		var __createBinding = (deeks.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+		    if (k2 === undefined) k2 = k;
+		    var desc = Object.getOwnPropertyDescriptor(m, k);
+		    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+		      desc = { enumerable: true, get: function() { return m[k]; } };
+		    }
+		    Object.defineProperty(o, k2, desc);
+		}) : (function(o, m, k, k2) {
+		    if (k2 === undefined) k2 = k;
+		    o[k2] = m[k];
+		}));
+		var __setModuleDefault = (deeks.__setModuleDefault) || (Object.create ? (function(o, v) {
+		    Object.defineProperty(o, "default", { enumerable: true, value: v });
+		}) : function(o, v) {
+		    o["default"] = v;
+		});
+		var __importStar = (deeks.__importStar) || function (mod) {
+		    if (mod && mod.__esModule) return mod;
+		    var result = {};
+		    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+		    __setModuleDefault(result, mod);
+		    return result;
+		};
+		var __exportStar = (deeks.__exportStar) || function(m, exports) {
+		    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+		};
+		Object.defineProperty(exports, "__esModule", { value: true });
+		exports.deepKeysFromList = exports.deepKeys = undefined;
+		const utils = __importStar(requireUtils$1());
+		__exportStar(requireTypes(), exports);
+		/**
+		 * Return the deep keys list for a single document
+		 * @param object
+		 * @param options
+		 * @returns {Array}
+		 */
+		function deepKeys(object, options) {
+		    const parsedOptions = mergeOptions(options);
+		    if (typeof object === 'object' && object !== null) {
+		        return generateDeepKeysList('', object, parsedOptions);
+		    }
+		    return [];
+		}
+		exports.deepKeys = deepKeys;
+		/**
+		 * Return the deep keys list for all documents in the provided list
+		 * @param list
+		 * @param options
+		 * @returns Array[Array[String]]
+		 */
+		function deepKeysFromList(list, options) {
+		    const parsedOptions = mergeOptions(options);
+		    return list.map((document) => {
+		        if (typeof document === 'object' && document !== null) {
+		            // if the data at the key is a document, then we retrieve the subHeading starting with an empty string heading and the doc
+		            return deepKeys(document, parsedOptions);
+		        }
+		        return [];
+		    });
+		}
+		exports.deepKeysFromList = deepKeysFromList;
+		function generateDeepKeysList(heading, data, options) {
+		    const keys = Object.keys(data).map((currentKey) => {
+		        // If the given heading is empty, then we set the heading to be the subKey, otherwise set it as a nested heading w/ a dot
+		        const keyName = buildKeyName(heading, escapeNestedDotsIfSpecified(currentKey, options));
+		        // If we have another nested document, recur on the sub-document to retrieve the full key name
+		        if (options.expandNestedObjects && utils.isDocumentToRecurOn(data[currentKey]) || (options.arrayIndexesAsKeys && Array.isArray(data[currentKey]) && data[currentKey].length)) {
+		            return generateDeepKeysList(keyName, data[currentKey], options);
+		        }
+		        else if (options.expandArrayObjects && Array.isArray(data[currentKey])) {
+		            // If we have a nested array that we need to recur on
+		            return processArrayKeys(data[currentKey], keyName, options);
+		        }
+		        else if (options.ignoreEmptyArrays && Array.isArray(data[currentKey]) && !data[currentKey].length) {
+		            return [];
+		        }
+		        // Otherwise return this key name since we don't have a sub document
+		        return keyName;
+		    });
+		    return utils.flatten(keys);
+		}
+		/**
+		 * Helper function to handle the processing of arrays when the expandArrayObjects
+		 * option is specified.
+		 * @param subArray
+		 * @param currentKeyPath
+		 * @param options
+		 * @returns {*}
+		 */
+		function processArrayKeys(subArray, currentKeyPath, options) {
+		    let subArrayKeys = deepKeysFromList(subArray, options);
+		    if (!subArray.length) {
+		        return options.ignoreEmptyArraysWhenExpanding ? [] : [currentKeyPath];
+		    }
+		    else if (subArray.length && utils.flatten(subArrayKeys).length === 0) {
+		        // Has items in the array, but no objects
+		        return [currentKeyPath];
+		    }
+		    else {
+		        subArrayKeys = subArrayKeys.map((schemaKeys) => {
+		            if (Array.isArray(schemaKeys) && schemaKeys.length === 0) {
+		                return [currentKeyPath];
+		            }
+		            return schemaKeys.map((subKey) => buildKeyName(currentKeyPath, escapeNestedDotsIfSpecified(subKey, options)));
+		        });
+		        return utils.unique(utils.flatten(subArrayKeys));
+		    }
+		}
+		function escapeNestedDotsIfSpecified(key, options) {
+		    if (options.escapeNestedDots) {
+		        return key.replace(/\./g, '\\.');
+		    }
+		    return key;
+		}
+		/**
+		 * Function used to generate the key path
+		 * @param upperKeyName String accumulated key path
+		 * @param currentKeyName String current key name
+		 * @returns String
+		 */
+		function buildKeyName(upperKeyName, currentKeyName) {
+		    if (upperKeyName) {
+		        return upperKeyName + '.' + currentKeyName;
+		    }
+		    return currentKeyName;
+		}
+		function mergeOptions(options) {
+		    return {
+		        arrayIndexesAsKeys: false,
+		        expandNestedObjects: true,
+		        expandArrayObjects: false,
+		        ignoreEmptyArraysWhenExpanding: false,
+		        escapeNestedDots: false,
+		        ignoreEmptyArrays: false,
+		        ...(options ?? {})
+		    };
+		} 
+	} (deeks));
+	return deeks;
+}
+
+var utils = {};
+
+var hasRequiredUtils;
+
+function requireUtils () {
+	if (hasRequiredUtils) return utils;
+	hasRequiredUtils = 1;
+	Object.defineProperty(utils, "__esModule", { value: true });
+	utils.isInvalid = utils.flatten = utils.unique = utils.arrayDifference = utils.isError = utils.isUndefined = utils.isNull = utils.isObject = utils.isString = utils.isNumber = utils.unwind = utils.getNCharacters = utils.removeEmptyFields = utils.isEmptyField = utils.computeSchemaDifferences = utils.isDateRepresentation = utils.isStringRepresentation = utils.deepCopy = utils.validate = utils.buildC2JOptions = utils.buildJ2COptions = undefined;
+	const doc_path_1 = requirePath();
+	const constants_1 = requireConstants();
+	const dateStringRegex = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/, MAX_ARRAY_LENGTH = 100000;
+	/**
+	 * Build the options to be passed to the appropriate function
+	 * If a user does not provide custom options, then we use our default
+	 * If options are provided, then we set each valid key that was passed
+	 */
+	function buildJ2COptions(opts) {
+	    return {
+	        ...constants_1.defaultJson2CsvOptions,
+	        ...opts,
+	        delimiter: {
+	            field: opts?.delimiter?.field ?? constants_1.defaultJson2CsvOptions.delimiter.field,
+	            wrap: opts?.delimiter?.wrap || constants_1.defaultJson2CsvOptions.delimiter.wrap,
+	            eol: opts?.delimiter?.eol || constants_1.defaultJson2CsvOptions.delimiter.eol,
+	        },
+	        fieldTitleMap: Object.create({}),
+	    };
+	}
+	utils.buildJ2COptions = buildJ2COptions;
+	/**
+	 * Build the options to be passed to the appropriate function
+	 * If a user does not provide custom options, then we use our default
+	 * If options are provided, then we set each valid key that was passed
+	 */
+	function buildC2JOptions(opts) {
+	    return {
+	        ...constants_1.defaultCsv2JsonOptions,
+	        ...opts,
+	        delimiter: {
+	            field: opts?.delimiter?.field ?? constants_1.defaultCsv2JsonOptions.delimiter.field,
+	            wrap: opts?.delimiter?.wrap || constants_1.defaultCsv2JsonOptions.delimiter.wrap,
+	            eol: opts?.delimiter?.eol || constants_1.defaultCsv2JsonOptions.delimiter.eol,
+	        },
+	    };
+	}
+	utils.buildC2JOptions = buildC2JOptions;
+	function validate(data, validationFn, errorMessages) {
+	    if (!data)
+	        throw new Error(`${errorMessages.cannotCallOn} ${data}.`);
+	    if (!validationFn(data))
+	        throw new Error(errorMessages.dataCheckFailure);
+	    return true;
+	}
+	utils.validate = validate;
+	/**
+	 * Utility function to deep copy an object, used by the module tests
+	 */
+	function deepCopy(obj) {
+	    return JSON.parse(JSON.stringify(obj));
+	}
+	utils.deepCopy = deepCopy;
+	/**
+	 * Helper function that determines whether the provided value is a representation
+	 *   of a string. Given the RFC4180 requirements, that means that the value is
+	 *   wrapped in value wrap delimiters (usually a quotation mark on each side).
+	 */
+	function isStringRepresentation(fieldValue, options) {
+	    const firstChar = fieldValue[0], lastIndex = fieldValue.length - 1, lastChar = fieldValue[lastIndex];
+	    // If the field starts and ends with a wrap delimiter
+	    return firstChar === options.delimiter.wrap && lastChar === options.delimiter.wrap;
+	}
+	utils.isStringRepresentation = isStringRepresentation;
+	/**
+	 * Helper function that determines whether the provided value is a representation
+	 *   of a date.
+	 */
+	function isDateRepresentation(fieldValue) {
+	    return dateStringRegex.test(fieldValue);
+	}
+	utils.isDateRepresentation = isDateRepresentation;
+	/**
+	 * Helper function that determines the schema differences between two objects.
+	 */
+	function computeSchemaDifferences(schemaA, schemaB) {
+	    return arrayDifference(schemaA, schemaB)
+	        .concat(arrayDifference(schemaB, schemaA));
+	}
+	utils.computeSchemaDifferences = computeSchemaDifferences;
+	/**
+	 * Utility function to check if a field is considered empty so that the emptyFieldValue can be used instead
+	 */
+	function isEmptyField(fieldValue) {
+	    return isUndefined(fieldValue) || isNull(fieldValue) || fieldValue === '';
+	}
+	utils.isEmptyField = isEmptyField;
+	/**
+	 * Helper function that removes empty field values from an array.
+	 */
+	function removeEmptyFields(fields) {
+	    return fields.filter((field) => !isEmptyField(field));
+	}
+	utils.removeEmptyFields = removeEmptyFields;
+	/**
+	 * Helper function that retrieves the next n characters from the start index in
+	 *   the string including the character at the start index. This is used to
+	 *   check if are currently at an EOL value, since it could be multiple
+	 *   characters in length (eg. '\r\n')
+	 */
+	function getNCharacters(str, start, n) {
+	    return str.substring(start, start + n);
+	}
+	utils.getNCharacters = getNCharacters;
+	/**
+	 * The following unwind functionality is a heavily modified version of @edwincen's
+	 * unwind extension for lodash. Since lodash is a large package to require in,
+	 * and all of the required functionality was already being imported, either
+	 * natively or with doc-path, I decided to rewrite the majority of the logic
+	 * so that an additional dependency would not be required. The original code
+	 * with the lodash dependency can be found here:
+	 *
+	 * https://github.com/edwincen/unwind/blob/master/index.js
+	 */
+	/**
+	 * Core function that unwinds an item at the provided path
+	 */
+	function unwindItem(accumulator, item, fieldPath) {
+	    const valueToUnwind = (0, doc_path_1.evaluatePath)(item, fieldPath);
+	    let cloned = deepCopy(item);
+	    if (Array.isArray(valueToUnwind) && valueToUnwind.length) {
+	        valueToUnwind.forEach((val) => {
+	            cloned = deepCopy(item);
+	            accumulator.push((0, doc_path_1.setPath)(cloned, fieldPath, val));
+	        });
+	    }
+	    else if (Array.isArray(valueToUnwind) && valueToUnwind.length === 0) {
+	        // Push an empty string so the value is empty since there are no values
+	        (0, doc_path_1.setPath)(cloned, fieldPath, '');
+	        accumulator.push(cloned);
+	    }
+	    else {
+	        accumulator.push(cloned);
+	    }
+	}
+	/**
+	 * Main unwind function which takes an array and a field to unwind.
+	 */
+	function unwind(array, field) {
+	    const result = [];
+	    array.forEach((item) => {
+	        unwindItem(result, item, field);
+	    });
+	    return result;
+	}
+	utils.unwind = unwind;
+	/**
+	 * Checks whether value can be converted to a number
+	 */
+	function isNumber(value) {
+	    return !isNaN(Number(value));
+	}
+	utils.isNumber = isNumber;
+	/*
+	 * Helper functions which were created to remove underscorejs from this package.
+	 */
+	function isString(value) {
+	    return typeof value === 'string';
+	}
+	utils.isString = isString;
+	function isObject(value) {
+	    return typeof value === 'object';
+	}
+	utils.isObject = isObject;
+	function isNull(value) {
+	    return value === null;
+	}
+	utils.isNull = isNull;
+	function isUndefined(value) {
+	    return typeof value === 'undefined';
+	}
+	utils.isUndefined = isUndefined;
+	function isError(value) {
+	    // TODO(mrodrig): test this possible change
+	    // return value instanceof Error;
+	    return Object.prototype.toString.call(value) === '[object Error]';
+	}
+	utils.isError = isError;
+	function arrayDifference(a, b) {
+	    return a.filter((x) => !b.includes(x));
+	}
+	utils.arrayDifference = arrayDifference;
+	function unique(array) {
+	    return [...new Set(array)];
+	}
+	utils.unique = unique;
+	function flatten(array) {
+	    // Node 11+ - use the native array flattening function
+	    if (array.flat) {
+	        return array.flat();
+	    }
+	    // #167 - allow browsers to flatten very long 200k+ element arrays
+	    if (array.length > MAX_ARRAY_LENGTH) {
+	        let safeArray = [];
+	        for (let a = 0; a < array.length; a += MAX_ARRAY_LENGTH) {
+	            safeArray = safeArray.concat(...array.slice(a, a + MAX_ARRAY_LENGTH));
+	        }
+	        return safeArray;
+	    }
+	    return array.reduce((accumulator, value) => accumulator.concat(value), []);
+	}
+	utils.flatten = flatten;
+	/**
+	 * Used to help avoid incorrect values returned by JSON.parse when converting
+	 * CSV back to JSON, such as '39e1804' which JSON.parse converts to Infinity
+	 */
+	function isInvalid(parsedJson) {
+	    return parsedJson === Infinity ||
+	        parsedJson === -Infinity;
+	}
+	utils.isInvalid = isInvalid;
+	return utils;
+}
+
+var hasRequiredJson2csv;
+
+function requireJson2csv () {
+	if (hasRequiredJson2csv) return json2csv;
+	hasRequiredJson2csv = 1;
+	var __createBinding = (json2csv.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+	    if (k2 === undefined) k2 = k;
+	    var desc = Object.getOwnPropertyDescriptor(m, k);
+	    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+	      desc = { enumerable: true, get: function() { return m[k]; } };
+	    }
+	    Object.defineProperty(o, k2, desc);
+	}) : (function(o, m, k, k2) {
+	    if (k2 === undefined) k2 = k;
+	    o[k2] = m[k];
+	}));
+	var __setModuleDefault = (json2csv.__setModuleDefault) || (Object.create ? (function(o, v) {
+	    Object.defineProperty(o, "default", { enumerable: true, value: v });
+	}) : function(o, v) {
+	    o["default"] = v;
+	});
+	var __importStar = (json2csv.__importStar) || function (mod) {
+	    if (mod && mod.__esModule) return mod;
+	    var result = {};
+	    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+	    __setModuleDefault(result, mod);
+	    return result;
+	};
+	Object.defineProperty(json2csv, "__esModule", { value: true });
+	json2csv.Json2Csv = undefined;
+	const doc_path_1 = requirePath();
+	const deeks_1 = requireDeeks();
+	const constants_1 = requireConstants();
+	const utils = __importStar(requireUtils());
+	const Json2Csv = function (options) {
+	    const wrapDelimiterCheckRegex = new RegExp(options.delimiter.wrap, 'g'), crlfSearchRegex = /\r?\n|\r/, customValueParser = options.parseValue && typeof options.parseValue === 'function' ? options.parseValue : null, expandingWithoutUnwinding = options.expandArrayObjects && !options.unwindArrays, deeksOptions = {
+	        arrayIndexesAsKeys: options.arrayIndexesAsKeys,
+	        expandNestedObjects: options.expandNestedObjects,
+	        expandArrayObjects: expandingWithoutUnwinding,
+	        ignoreEmptyArraysWhenExpanding: expandingWithoutUnwinding,
+	        escapeNestedDots: true,
+	    };
+	    /** HEADER FIELD FUNCTIONS **/
+	    /**
+	     * Returns the list of data field names of all documents in the provided list
+	     */
+	    function getFieldNameList(data) {
+	        // If keys weren't specified, then we'll use the list of keys generated by the deeks module
+	        return (0, deeks_1.deepKeysFromList)(data, deeksOptions);
+	    }
+	    /**
+	     * Processes the schemas by checking for schema differences, if so desired.
+	     * If schema differences are not to be checked, then it resolves the unique
+	     * list of field names.
+	     */
+	    function processSchemas(documentSchemas) {
+	        // If there are no document schemas then there is nothing to diff and no unique fields to get
+	        if (documentSchemas.length === 0) {
+	            return [];
+	        }
+	        // If the user wants to check for the same schema (regardless of schema ordering)
+	        if (options.checkSchemaDifferences) {
+	            return checkSchemaDifferences(documentSchemas);
+	        }
+	        else {
+	            // Otherwise, we do not care if the schemas are different, so we should get the unique list of keys
+	            const uniqueFieldNames = utils.unique(utils.flatten(documentSchemas));
+	            return uniqueFieldNames;
+	        }
+	    }
+	    /**
+	     * This function performs the schema difference check, if the user specifies that it should be checked.
+	     * If there are no field names, then there are no differences.
+	     * Otherwise, we get the first schema and the remaining list of schemas
+	     */
+	    function checkSchemaDifferences(documentSchemas) {
+	        // have multiple documents - ensure only one schema (regardless of field ordering)
+	        const firstDocSchema = documentSchemas[0], restOfDocumentSchemas = documentSchemas.slice(1), schemaDifferences = computeNumberOfSchemaDifferences(firstDocSchema, restOfDocumentSchemas);
+	        // If there are schema inconsistencies, throw a schema not the same error
+	        if (schemaDifferences) {
+	            throw new Error(constants_1.errors.json2csv.notSameSchema);
+	        }
+	        return firstDocSchema;
+	    }
+	    /**
+	     * Computes the number of schema differences
+	     */
+	    function computeNumberOfSchemaDifferences(firstDocSchema, restOfDocumentSchemas) {
+	        return restOfDocumentSchemas.reduce((schemaDifferences, documentSchema) => {
+	            // If there is a difference between the schemas, increment the counter of schema inconsistencies
+	            const numberOfDifferences = utils.computeSchemaDifferences(firstDocSchema, documentSchema).length;
+	            return numberOfDifferences > 0
+	                ? schemaDifferences + 1
+	                : schemaDifferences;
+	        }, 0);
+	    }
+	    /**
+	     * If so specified, this filters the detected key paths to exclude any keys that have been specified
+	     */
+	    function filterExcludedKeys(keyPaths) {
+	        if (options.excludeKeys) {
+	            return keyPaths.filter((keyPath) => {
+	                for (const excludedKey of options.excludeKeys) {
+	                    // Only match if the excludedKey appears at the beginning of the string so we don't accidentally match a key farther down in a key path
+	                    const regex = excludedKey instanceof RegExp ? excludedKey : new RegExp(`^${excludedKey}`);
+	                    if (excludedKey === keyPath || keyPath.match(regex)) {
+	                        return false; // Exclude the key
+	                    }
+	                }
+	                return true; // Otherwise, include the key
+	            });
+	        }
+	        return keyPaths;
+	    }
+	    /**
+	     * If so specified, this sorts the header field names alphabetically
+	     */
+	    function sortHeaderFields(fieldNames) {
+	        if (options.sortHeader && typeof options.sortHeader === 'function') {
+	            return fieldNames.sort(options.sortHeader);
+	        }
+	        else if (options.sortHeader) {
+	            return fieldNames.sort();
+	        }
+	        return fieldNames;
+	    }
+	    /**
+	     * Trims the header fields, if the user desires them to be trimmed.
+	     */
+	    function trimHeaderFields(params) {
+	        if (options.trimHeaderFields) {
+	            params.headerFields = params.headerFields.map((field) => field.split('.')
+	                .map((component) => component.trim())
+	                .join('.'));
+	        }
+	        return params;
+	    }
+	    /**
+	     * Wrap the headings, if desired by the user.
+	     */
+	    function wrapHeaderFields(params) {
+	        // only perform this if we are actually prepending the header
+	        if (options.prependHeader) {
+	            params.headerFields = params.headerFields.map(function (headingKey) {
+	                return wrapFieldValueIfNecessary(headingKey);
+	            });
+	        }
+	        return params;
+	    }
+	    /**
+	     * Generates the CSV header string by joining the headerFields by the field delimiter
+	     */
+	    function generateCsvHeader(params) {
+	        // #185 - generate a keys list to avoid finding native Map() methods
+	        const fieldTitleMapKeys = Object.keys(options.fieldTitleMap);
+	        params.header = params.headerFields
+	            .map(function (field) {
+	            let headerKey = field;
+	            // If a custom field title was provided for this field, use that
+	            if (fieldTitleMapKeys.includes(field)) {
+	                headerKey = options.fieldTitleMap[field];
+	            }
+	            else if (!options.escapeHeaderNestedDots) {
+	                // Otherwise, if the user doesn't want nested dots in keys to be escaped, then unescape them
+	                headerKey = headerKey.replace(/\\\./g, '.');
+	            }
+	            return headerKey;
+	        })
+	            .join(options.delimiter.field);
+	        return params;
+	    }
+	    function convertKeysToHeaderFields() {
+	        if (!options.keys)
+	            return [];
+	        return options.keys.map((key) => {
+	            if (typeof key === 'object' && 'field' in key) {
+	                options.fieldTitleMap[key.field] = key.title ?? key.field;
+	                return key.field;
+	            }
+	            return key;
+	        });
+	    }
+	    function extractWildcardMatchKeys() {
+	        if (!options.keys)
+	            return [];
+	        return options.keys.flatMap(item => {
+	            if (typeof item === 'string') {
+	                // Exclude plain strings that were passed in options.keys
+	                return [];
+	            }
+	            else if (item?.wildcardMatch) {
+	                // Return "field" value for objects with wildcardMatch: true
+	                return item.field;
+	            }
+	            // Exclude other objects
+	            return [];
+	        });
+	    }
+	    /**
+	     * Retrieve the headings for all documents and return it.
+	     * This checks that all documents have the same schema.
+	     */
+	    function retrieveHeaderFields(data) {
+	        const wildcardMatchKeys = extractWildcardMatchKeys();
+	        const keyStrings = convertKeysToHeaderFields();
+	        const fieldNames = getFieldNameList(data);
+	        const processed = processSchemas(fieldNames);
+	        if (options.keys) {
+	            options.keys = keyStrings;
+	            const matchedKeys = keyStrings.flatMap((userProvidedKey) => {
+	                // If this is not a wildcard matched key, then just return and include it in the resulting key list
+	                if (!wildcardMatchKeys.includes(userProvidedKey)) {
+	                    return userProvidedKey;
+	                }
+	                // Otherwise, identify all detected keys that match with the provided wildcard key:
+	                const matches = [];
+	                const regex = new RegExp(`^${userProvidedKey}`);
+	                for (const detectedKey of processed) {
+	                    if (userProvidedKey === detectedKey || detectedKey.match(regex)) {
+	                        matches.push(detectedKey);
+	                    }
+	                }
+	                return matches;
+	            });
+	            if (!options.unwindArrays) {
+	                const filtered = filterExcludedKeys(matchedKeys);
+	                return sortHeaderFields(filtered);
+	            }
+	        }
+	        const filtered = filterExcludedKeys(processed);
+	        return sortHeaderFields(filtered);
+	    }
+	    /** RECORD FIELD FUNCTIONS **/
+	    /**
+	     * Unwinds objects in arrays within record objects if the user specifies the
+	     * expandArrayObjects option. If not specified, this passes the params
+	     * argument through to the next function in the promise chain.
+	     *
+	     * The `finalPass` parameter is used to trigger one last pass to ensure no more
+	     * arrays need to be expanded
+	     */
+	    function unwindRecordsIfNecessary(params, finalPass = false) {
+	        if (options.unwindArrays) {
+	            const originalRecordsLength = params.records.length;
+	            // Unwind each of the documents at the given headerField
+	            params.headerFields.forEach((headerField) => {
+	                params.records = utils.unwind(params.records, headerField);
+	            });
+	            const headerFields = retrieveHeaderFields(params.records);
+	            params.headerFields = headerFields;
+	            // If we were able to unwind more arrays, then try unwinding again...
+	            if (originalRecordsLength !== params.records.length) {
+	                return unwindRecordsIfNecessary(params);
+	            }
+	            // Otherwise, we didn't unwind any additional arrays, so continue...
+	            // Run a final time in case the earlier unwinding exposed additional
+	            // arrays to unwind...
+	            if (!finalPass) {
+	                return unwindRecordsIfNecessary(params, true);
+	            }
+	            // If keys were provided, set the headerFields back to the provided keys after unwinding:
+	            if (options.keys) {
+	                const userSelectedFields = convertKeysToHeaderFields();
+	                params.headerFields = filterExcludedKeys(userSelectedFields);
+	            }
+	            return params;
+	        }
+	        return params;
+	    }
+	    /**
+	     * Main function which handles the processing of a record, or document to be converted to CSV format
+	     * This function specifies and performs the necessary operations in the necessary order
+	     * in order to obtain the data and convert it to CSV form while maintaining RFC 4180 compliance.
+	     * * Order of operations:
+	     * - Get fields from provided key list (as array of actual values)
+	     * - Convert the values to csv/string representation [possible option here for custom converters?]
+	     * - Trim fields
+	     * - Determine if they need to be wrapped (& wrap if necessary)
+	     * - Combine values for each line (by joining by field delimiter)
+	     */
+	    function processRecords(params) {
+	        params.recordString = params.records.map((record) => {
+	            // Retrieve data for each of the headerFields from this record
+	            const recordFieldData = retrieveRecordFieldData(record, params.headerFields), 
+	            // Process the data in this record and return the
+	            processedRecordData = recordFieldData.map((fieldValue) => {
+	                fieldValue = trimRecordFieldValue(fieldValue);
+	                fieldValue = preventCsvInjection(fieldValue);
+	                let stringified = customValueParser ? customValueParser(fieldValue, recordFieldValueToString) : recordFieldValueToString(fieldValue);
+	                stringified = wrapFieldValueIfNecessary(stringified);
+	                return stringified;
+	            });
+	            // Join the record data by the field delimiter
+	            return generateCsvRowFromRecord(processedRecordData);
+	        }).join(options.delimiter.eol);
+	        return params;
+	    }
+	    /**
+	     * Helper function intended to process *just* array values when the expandArrayObjects setting is set to true
+	     */
+	    function processRecordFieldDataForExpandedArrayObject(recordFieldValue) {
+	        const filteredRecordFieldValue = utils.removeEmptyFields(recordFieldValue);
+	        // If we have an array and it's either empty of full of empty values, then use an empty value representation
+	        if (!recordFieldValue.length || !filteredRecordFieldValue.length) {
+	            return options.emptyFieldValue || '';
+	        }
+	        else if (filteredRecordFieldValue.length === 1) {
+	            // Otherwise, we have an array of actual values...
+	            // Since we are expanding array objects, we will want to key in on values of objects.
+	            return filteredRecordFieldValue[0]; // Extract the single value in the array
+	        }
+	        return recordFieldValue;
+	    }
+	    /**
+	     * Gets all field values from a particular record for the given list of fields
+	     */
+	    function retrieveRecordFieldData(record, fields) {
+	        const recordValues = [];
+	        fields.forEach((field) => {
+	            let recordFieldValue = (0, doc_path_1.evaluatePath)(record, field);
+	            if (!utils.isUndefined(options.emptyFieldValue) && utils.isEmptyField(recordFieldValue)) {
+	                recordFieldValue = options.emptyFieldValue;
+	            }
+	            else if (options.expandArrayObjects && Array.isArray(recordFieldValue)) {
+	                recordFieldValue = processRecordFieldDataForExpandedArrayObject(recordFieldValue);
+	            }
+	            recordValues.push(recordFieldValue);
+	        });
+	        return recordValues;
+	    }
+	    /**
+	     * Converts a record field value to its string representation
+	     */
+	    function recordFieldValueToString(fieldValue) {
+	        const isDate = fieldValue instanceof Date; // store to avoid checking twice
+	        if (fieldValue === null || Array.isArray(fieldValue) || typeof fieldValue === 'object' && !isDate) {
+	            return JSON.stringify(fieldValue);
+	        }
+	        else if (typeof fieldValue === 'undefined') {
+	            return 'undefined';
+	        }
+	        else if (isDate && options.useDateIso8601Format) {
+	            return fieldValue.toISOString();
+	        }
+	        else {
+	            return !options.useLocaleFormat ? fieldValue.toString() : fieldValue.toLocaleString();
+	        }
+	    }
+	    /**
+	     * Trims the record field value, if specified by the user's provided options
+	     */
+	    function trimRecordFieldValue(fieldValue) {
+	        if (options.trimFieldValues) {
+	            if (Array.isArray(fieldValue)) {
+	                return fieldValue.map(trimRecordFieldValue);
+	            }
+	            else if (typeof fieldValue === 'string') {
+	                return fieldValue.trim();
+	            }
+	            return fieldValue;
+	        }
+	        return fieldValue;
+	    }
+	    /**
+	     * Prevent CSV injection on strings if specified by the user's provided options.
+	     * Mitigation will be done by ensuring that the first character doesn't being with:
+	     * Equals (=), Plus (+), Minus (-), At (@), Tab (0x09), Carriage return (0x0D).
+	     * More info: https://owasp.org/www-community/attacks/CSV_Injection
+	     */
+	    function preventCsvInjection(fieldValue) {
+	        if (options.preventCsvInjection) {
+	            if (Array.isArray(fieldValue)) {
+	                return fieldValue.map(preventCsvInjection);
+	            }
+	            else if (typeof fieldValue === 'string' && !utils.isNumber(fieldValue)) {
+	                return fieldValue.replace(/^[=+\-@\t\r]+/g, '');
+	            }
+	            return fieldValue;
+	        }
+	        return fieldValue;
+	    }
+	    /**
+	     * Escapes quotation marks in the field value, if necessary, and appropriately
+	     * wraps the record field value if it contains a comma (field delimiter),
+	     * quotation mark (wrap delimiter), or a line break (CRLF)
+	     */
+	    function wrapFieldValueIfNecessary(fieldValue) {
+	        const wrapDelimiter = options.delimiter.wrap;
+	        // eg. includes quotation marks (default delimiter)
+	        if (fieldValue.includes(options.delimiter.wrap)) {
+	            // add an additional quotation mark before each quotation mark appearing in the field value
+	            fieldValue = fieldValue.replace(wrapDelimiterCheckRegex, wrapDelimiter + wrapDelimiter);
+	        }
+	        // if the field contains a comma (field delimiter), quotation mark (wrap delimiter), line break, or CRLF
+	        //   then enclose it in quotation marks (wrap delimiter)
+	        if (fieldValue.includes(options.delimiter.field) ||
+	            fieldValue.includes(options.delimiter.wrap) ||
+	            fieldValue.match(crlfSearchRegex) ||
+	            options.wrapBooleans && (fieldValue === 'true' || fieldValue === 'false')) {
+	            // wrap the field's value in a wrap delimiter (quotation marks by default)
+	            fieldValue = wrapDelimiter + fieldValue + wrapDelimiter;
+	        }
+	        return fieldValue;
+	    }
+	    /**
+	     * Generates the CSV record string by joining the field values together by the field delimiter
+	     */
+	    function generateCsvRowFromRecord(recordFieldValues) {
+	        return recordFieldValues.join(options.delimiter.field);
+	    }
+	    /** CSV COMPONENT COMBINER/FINAL PROCESSOR **/
+	    /**
+	     * Performs the final CSV construction by combining the fields in the appropriate
+	     * order depending on the provided options values and sends the generated CSV
+	     * back to the user
+	     */
+	    function generateCsvFromComponents(params) {
+	        const header = params.header, records = params.recordString, 
+	        // If we are prepending the header, then add an EOL, otherwise just return the records
+	        csv = (options.excelBOM ? constants_1.excelBOM : '') +
+	            (options.prependHeader ? header + options.delimiter.eol : '') +
+	            records;
+	        return csv;
+	    }
+	    /** MAIN CONVERTER FUNCTION **/
+	    /**
+	     * Internally exported json2csv function
+	     */
+	    function convert(data) {
+	        // Single document, not an array
+	        if (!Array.isArray(data)) {
+	            data = [data]; // Convert to an array of the given document
+	        }
+	        // Retrieve the heading and then generate the CSV with the keys that are identified
+	        const headerFields = {
+	            headerFields: retrieveHeaderFields(data),
+	            records: data,
+	            header: '',
+	            recordString: '',
+	        };
+	        const unwinded = unwindRecordsIfNecessary(headerFields);
+	        const processed = processRecords(unwinded);
+	        const wrapped = wrapHeaderFields(processed);
+	        const trimmed = trimHeaderFields(wrapped);
+	        const generated = generateCsvHeader(trimmed);
+	        return generateCsvFromComponents(generated);
+	    }
+	    return {
+	        convert,
+	    };
+	};
+	json2csv.Json2Csv = Json2Csv;
+	return json2csv;
+}
+
+var csv2json = {};
+
+var hasRequiredCsv2json;
+
+function requireCsv2json () {
+	if (hasRequiredCsv2json) return csv2json;
+	hasRequiredCsv2json = 1;
+	var __createBinding = (csv2json.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+	    if (k2 === undefined) k2 = k;
+	    var desc = Object.getOwnPropertyDescriptor(m, k);
+	    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+	      desc = { enumerable: true, get: function() { return m[k]; } };
+	    }
+	    Object.defineProperty(o, k2, desc);
+	}) : (function(o, m, k, k2) {
+	    if (k2 === undefined) k2 = k;
+	    o[k2] = m[k];
+	}));
+	var __setModuleDefault = (csv2json.__setModuleDefault) || (Object.create ? (function(o, v) {
+	    Object.defineProperty(o, "default", { enumerable: true, value: v });
+	}) : function(o, v) {
+	    o["default"] = v;
+	});
+	var __importStar = (csv2json.__importStar) || function (mod) {
+	    if (mod && mod.__esModule) return mod;
+	    var result = {};
+	    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+	    __setModuleDefault(result, mod);
+	    return result;
+	};
+	Object.defineProperty(csv2json, "__esModule", { value: true });
+	csv2json.Csv2Json = undefined;
+	const doc_path_1 = requirePath();
+	const constants_1 = requireConstants();
+	const utils = __importStar(requireUtils());
+	const Csv2Json = function (options) {
+	    const escapedWrapDelimiterRegex = new RegExp(options.delimiter.wrap + options.delimiter.wrap, 'g'), excelBOMRegex = new RegExp('^' + constants_1.excelBOM), valueParserFn = options.parseValue && typeof options.parseValue === 'function' ? options.parseValue : JSON.parse;
+	    /**
+	     * Trims the header key, if specified by the user via the provided options
+	     */
+	    function processHeaderKey(headerKey) {
+	        headerKey = removeWrapDelimitersFromValue(headerKey);
+	        if (options.trimHeaderFields) {
+	            return headerKey.split('.')
+	                .map((component) => component.trim())
+	                .join('.');
+	        }
+	        return headerKey;
+	    }
+	    /**
+	     * Generate the JSON heading from the CSV
+	     */
+	    function retrieveHeading(lines) {
+	        let headerFields = [];
+	        if (options.headerFields) {
+	            headerFields = options.headerFields.map((headerField, index) => ({
+	                value: processHeaderKey(headerField),
+	                index
+	            }));
+	        }
+	        else {
+	            // Generate and return the heading keys
+	            const headerRow = lines[0];
+	            headerFields = headerRow.map((headerKey, index) => ({
+	                value: processHeaderKey(headerKey),
+	                index
+	            }));
+	            // If the user provided keys, filter the generated keys to just the user provided keys so we also have the key index
+	            if (options.keys) {
+	                const keys = options.keys; // TypeScript type checking work around to get it to recognize the option is not undefined
+	                headerFields = headerFields.filter((headerKey) => keys.includes(headerKey.value));
+	            }
+	        }
+	        return {
+	            lines,
+	            headerFields,
+	            recordLines: [],
+	        };
+	    }
+	    /**
+	     * Removes the Excel BOM value, if specified by the options object
+	     */
+	    function stripExcelBOM(csv) {
+	        if (options.excelBOM) {
+	            return csv.replace(excelBOMRegex, '');
+	        }
+	        return csv;
+	    }
+	    /**
+	     * Helper function that splits a line so that we can handle wrapped fields
+	     */
+	    function splitLines(csv) {
+	        // Parse out the line...
+	        const lines = [], lastCharacterIndex = csv.length - 1, eolDelimiterLength = options.delimiter.eol.length, stateVariables = {
+	            insideWrapDelimiter: false,
+	            parsingValue: true,
+	            justParsedDoubleQuote: false,
+	            startIndex: 0
+	        };
+	        let splitLine = [], character, charBefore, charAfter, nextNChar, index = 0;
+	        // Loop through each character in the line to identify where to split the values
+	        while (index < csv.length) {
+	            // Current character
+	            character = csv[index];
+	            // Previous character
+	            charBefore = index ? csv[index - 1] : '';
+	            // Next character
+	            charAfter = index < lastCharacterIndex ? csv[index + 1] : '';
+	            // Next n characters, including the current character, where n = length(EOL delimiter)
+	            // This allows for the checking of an EOL delimiter when if it is more than a single character (eg. '\r\n')
+	            nextNChar = utils.getNCharacters(csv, index, eolDelimiterLength);
+	            if ((nextNChar === options.delimiter.eol && !stateVariables.insideWrapDelimiter ||
+	                index === lastCharacterIndex) && charBefore === options.delimiter.field) {
+	                // If we reached an EOL delimiter or the end of the csv and the previous character is a field delimiter...
+	                // If the start index is the current index (and since the previous character is a comma),
+	                //   then the value being parsed is an empty value accordingly, add an empty string
+	                if (nextNChar === options.delimiter.eol && stateVariables.startIndex === index) {
+	                    splitLine.push('');
+	                }
+	                else if (character === options.delimiter.field) {
+	                    // If we reached the end of the CSV, there's no new line, and the current character is a comma
+	                    // then add an empty string for the current value
+	                    splitLine.push('');
+	                }
+	                else {
+	                    // Otherwise, there's a valid value, and the start index isn't the current index, grab the whole value
+	                    splitLine.push(csv.substring(stateVariables.startIndex));
+	                }
+	                // Since the last character is a comma, there's still an additional implied field value trailing the comma.
+	                //   Since this value is empty, we push an extra empty value
+	                splitLine.push('');
+	                // Finally, push the split line values into the lines array and clear the split line
+	                lines.push(splitLine);
+	                splitLine = [];
+	                stateVariables.startIndex = index + eolDelimiterLength;
+	                stateVariables.parsingValue = true;
+	                stateVariables.insideWrapDelimiter = charAfter === options.delimiter.wrap;
+	            }
+	            else if (index === lastCharacterIndex && character === options.delimiter.field) {
+	                // If we reach the end of the CSV and the current character is a field delimiter
+	                // Parse the previously seen value and add it to the line
+	                const parsedValue = csv.substring(stateVariables.startIndex, index);
+	                splitLine.push(parsedValue);
+	                // Then add an empty string to the line since the last character being a field delimiter indicates an empty field
+	                splitLine.push('');
+	                lines.push(splitLine);
+	            }
+	            else if (index === lastCharacterIndex || nextNChar === options.delimiter.eol &&
+	                // if we aren't inside wrap delimiters or if we are but the character before was a wrap delimiter and we didn't just see two
+	                (!stateVariables.insideWrapDelimiter ||
+	                    stateVariables.insideWrapDelimiter && charBefore === options.delimiter.wrap && !stateVariables.justParsedDoubleQuote)) {
+	                // Otherwise if we reached the end of the line or csv (and current character is not a field delimiter)
+	                const toIndex = index !== lastCharacterIndex || charBefore === options.delimiter.wrap ? index : undefined;
+	                // Retrieve the remaining value and add it to the split line list of values
+	                splitLine.push(csv.substring(stateVariables.startIndex, toIndex));
+	                // Finally, push the split line values into the lines array and clear the split line
+	                lines.push(splitLine);
+	                splitLine = [];
+	                stateVariables.startIndex = index + eolDelimiterLength;
+	                stateVariables.parsingValue = true;
+	                stateVariables.insideWrapDelimiter = charAfter === options.delimiter.wrap;
+	            }
+	            else if (character === options.delimiter.wrap && charBefore === options.delimiter.field &&
+	                !stateVariables.insideWrapDelimiter && !stateVariables.parsingValue) {
+	                // If we reached a wrap delimiter after a comma and we aren't inside a wrap delimiter
+	                stateVariables.startIndex = index;
+	                stateVariables.insideWrapDelimiter = true;
+	                stateVariables.parsingValue = true;
+	                // If the next character(s) are an EOL delimiter, then skip them so we don't parse what we've seen as another value
+	                if (utils.getNCharacters(csv, index + 1, eolDelimiterLength) === options.delimiter.eol) {
+	                    index += options.delimiter.eol.length + 1; // Skip past EOL
+	                }
+	            }
+	            else if (charBefore === options.delimiter.field && character === options.delimiter.wrap && charAfter === options.delimiter.eol) {
+	                // We reached the start of a wrapped new field that begins with an EOL delimiter
+	                // Retrieve the remaining value and add it to the split line list of values
+	                splitLine.push(csv.substring(stateVariables.startIndex, index - 1));
+	                stateVariables.startIndex = index;
+	                stateVariables.parsingValue = true;
+	                stateVariables.insideWrapDelimiter = true;
+	                stateVariables.justParsedDoubleQuote = true;
+	                index += 1;
+	            }
+	            else if ((charBefore !== options.delimiter.wrap || stateVariables.justParsedDoubleQuote && charBefore === options.delimiter.wrap) &&
+	                character === options.delimiter.wrap && utils.getNCharacters(csv, index + 1, eolDelimiterLength) === options.delimiter.eol) {
+	                // If we reach a wrap which is not preceded by a wrap delim and the next character is an EOL delim (ie. *"\n)
+	                stateVariables.insideWrapDelimiter = false;
+	                stateVariables.parsingValue = false;
+	                // Next iteration will substring, add the value to the line, and push the line onto the array of lines
+	            }
+	            else if (character === options.delimiter.wrap && (index === 0 || utils.getNCharacters(csv, index - eolDelimiterLength, eolDelimiterLength) === options.delimiter.eol && !stateVariables.insideWrapDelimiter)) {
+	                // If the line starts with a wrap delimiter (ie. "*)
+	                stateVariables.insideWrapDelimiter = true;
+	                stateVariables.parsingValue = true;
+	                stateVariables.startIndex = index;
+	            }
+	            else if (character === options.delimiter.wrap && charAfter === options.delimiter.field && stateVariables.insideWrapDelimiter) {
+	                // If we reached a wrap delimiter with a field delimiter after it (ie. *",)
+	                splitLine.push(csv.substring(stateVariables.startIndex, index + 1));
+	                stateVariables.startIndex = index + 2; // next value starts after the field delimiter
+	                stateVariables.insideWrapDelimiter = false;
+	                stateVariables.parsingValue = false;
+	            }
+	            else if (character === options.delimiter.wrap && charBefore === options.delimiter.field &&
+	                !stateVariables.insideWrapDelimiter && stateVariables.parsingValue) {
+	                // If we reached a wrap delimiter with a field delimiter after it (ie. ,"*)
+	                splitLine.push(csv.substring(stateVariables.startIndex, index - 1));
+	                stateVariables.insideWrapDelimiter = true;
+	                stateVariables.parsingValue = true;
+	                stateVariables.startIndex = index;
+	            }
+	            else if (character === options.delimiter.wrap && charAfter === options.delimiter.wrap && index !== stateVariables.startIndex) {
+	                // If we run into an escaped quote (ie. "") skip past the second quote
+	                index += 2;
+	                stateVariables.justParsedDoubleQuote = true;
+	                continue;
+	            }
+	            else if (character === options.delimiter.field && charBefore !== options.delimiter.wrap &&
+	                charAfter !== options.delimiter.wrap && !stateVariables.insideWrapDelimiter &&
+	                stateVariables.parsingValue) {
+	                // If we reached a field delimiter and are not inside the wrap delimiters (ie. *,*)
+	                splitLine.push(csv.substring(stateVariables.startIndex, index));
+	                stateVariables.startIndex = index + 1;
+	            }
+	            else if (character === options.delimiter.field && charBefore === options.delimiter.wrap &&
+	                charAfter !== options.delimiter.wrap && !stateVariables.parsingValue) {
+	                // If we reached a field delimiter, the previous character was a wrap delimiter, and the
+	                //   next character is not a wrap delimiter (ie. ",*)
+	                stateVariables.insideWrapDelimiter = false;
+	                stateVariables.parsingValue = true;
+	                stateVariables.startIndex = index + 1;
+	            }
+	            // Otherwise increment to the next character
+	            index++;
+	            // Reset the double quote state variable
+	            stateVariables.justParsedDoubleQuote = false;
+	        }
+	        return lines;
+	    }
+	    /**
+	     * Retrieves the record lines from the split CSV lines and sets it on the params object
+	     */
+	    function retrieveRecordLines(params) {
+	        if (options.headerFields) { // This option is passed for instances where the CSV has no header line
+	            params.recordLines = params.lines;
+	        }
+	        else { // All lines except for the header line
+	            params.recordLines = params.lines.splice(1);
+	        }
+	        return params;
+	    }
+	    /**
+	     * Retrieves the value for the record from the line at the provided key.
+	     */
+	    function retrieveRecordValueFromLine(headerField, line) {
+	        // If there is a value at the key's index, use it; otherwise, null
+	        const value = line[headerField.index];
+	        // Perform any necessary value conversions on the record value
+	        return processRecordValue(value);
+	    }
+	    /**
+	     * Processes the record's value by parsing the data to ensure the CSV is
+	     * converted to the JSON that created it.
+	     */
+	    function processRecordValue(fieldValue) {
+	        // If the value is an array representation, convert it
+	        const parsedJson = parseValue(fieldValue);
+	        // If parsedJson is anything aside from an error, then we want to use the parsed value
+	        // This allows us to interpret values like 'null' --> null, 'false' --> false
+	        if (!utils.isError(parsedJson) && !utils.isInvalid(parsedJson)) {
+	            return parsedJson;
+	        }
+	        else if (fieldValue === 'undefined') {
+	            return undefined;
+	        }
+	        return fieldValue;
+	    }
+	    /**
+	     * Trims the record value, if specified by the user via the options object
+	     */
+	    function trimRecordValue(fieldValue) {
+	        if (options.trimFieldValues && fieldValue !== null) {
+	            return fieldValue.trim();
+	        }
+	        return fieldValue;
+	    }
+	    /**
+	     * Create a JSON document with the given keys (designated by the CSV header)
+	     *   and the values (from the given line)
+	     * @returns {Object} created json document
+	     */
+	    function createDocument(headerFields, line) {
+	        // Reduce the keys into a JSON document representing the given line
+	        return headerFields.reduce((document, headerField) => {
+	            // If there is a value at the key's index in the line, set the value; otherwise null
+	            const value = retrieveRecordValueFromLine(headerField, line);
+	            try {
+	                // Otherwise add the key and value to the document
+	                return (0, doc_path_1.setPath)(document, headerField.value, value);
+	            }
+	            catch (error) {
+	                // Catch any errors where key paths are null or '' and continue
+	                return document;
+	            }
+	        }, {});
+	    }
+	    /**
+	     * Removes the outermost wrap delimiters from a value, if they are present
+	     * Otherwise, the non-wrapped value is returned as is
+	     */
+	    function removeWrapDelimitersFromValue(fieldValue) {
+	        const firstChar = fieldValue[0], lastIndex = fieldValue.length - 1, lastChar = fieldValue[lastIndex];
+	        // If the field starts and ends with a wrap delimiter
+	        if (firstChar === options.delimiter.wrap && lastChar === options.delimiter.wrap) {
+	            // Handle the case where the field is just a pair of wrap delimiters 
+	            return fieldValue.length <= 2 ? '' : fieldValue.substring(1, lastIndex);
+	        }
+	        return fieldValue;
+	    }
+	    /**
+	     * Unescapes wrap delimiters by replacing duplicates with a single (eg. "" -> ")
+	     * This is done in order to parse RFC 4180 compliant CSV back to JSON
+	     */
+	    function unescapeWrapDelimiterInField(fieldValue) {
+	        return fieldValue.replace(escapedWrapDelimiterRegex, options.delimiter.wrap);
+	    }
+	    /**
+	     * Main helper function to convert the CSV to the JSON document array
+	     */
+	    function transformRecordLines(params) {
+	        // For each line, create the document and add it to the array of documents
+	        return params.recordLines.reduce((generatedJsonObjects, line) => {
+	            line = line.map((fieldValue) => {
+	                // Perform the necessary operations on each line
+	                fieldValue = removeWrapDelimitersFromValue(fieldValue);
+	                fieldValue = unescapeWrapDelimiterInField(fieldValue);
+	                fieldValue = trimRecordValue(fieldValue);
+	                return fieldValue;
+	            });
+	            const generatedDocument = createDocument(params.headerFields, line);
+	            return generatedJsonObjects.concat(generatedDocument);
+	        }, []);
+	    }
+	    /**
+	     * Attempts to parse the provided value. If it is not parsable, then an error is returned
+	     */
+	    function parseValue(value) {
+	        try {
+	            if (utils.isStringRepresentation(value, options) && !utils.isDateRepresentation(value)) {
+	                return value;
+	            }
+	            const parsedJson = valueParserFn(value);
+	            // If the parsed value is an array, then we also need to trim record values, if specified
+	            if (Array.isArray(parsedJson)) {
+	                return parsedJson.map(trimRecordValue);
+	            }
+	            return parsedJson;
+	        }
+	        catch (err) {
+	            return err;
+	        }
+	    }
+	    /**
+	     * Internally exported csv2json function
+	     */
+	    function convert(data) {
+	        // Split the CSV into lines using the specified EOL option
+	        const stripped = stripExcelBOM(data);
+	        const split = splitLines(stripped);
+	        const heading = retrieveHeading(split); // Retrieve the headings from the CSV, unless the user specified the keys
+	        const lines = retrieveRecordLines(heading); // Retrieve the record lines from the CSV
+	        return transformRecordLines(lines); // Retrieve the JSON document array
+	    }
+	    return {
+	        convert,
+	    };
+	};
+	csv2json.Csv2Json = Csv2Json;
+	return csv2json;
+}
+
+var hasRequiredConverter;
+
+function requireConverter () {
+	if (hasRequiredConverter) return converter;
+	hasRequiredConverter = 1;
+	Object.defineProperty(converter, "__esModule", { value: true });
+	converter.csv2json = converter.json2csv = undefined;
+	const constants_1 = requireConstants();
+	const json2csv_1 = requireJson2csv();
+	const csv2json_1 = requireCsv2json();
+	const utils_1 = requireUtils();
+	function json2csv(data, options) {
+	    const builtOptions = (0, utils_1.buildJ2COptions)(options ?? {});
+	    // Validate the parameters before calling the converter's convert function
+	    (0, utils_1.validate)(data, utils_1.isObject, constants_1.errors.json2csv);
+	    return (0, json2csv_1.Json2Csv)(builtOptions).convert(data);
+	}
+	converter.json2csv = json2csv;
+	function csv2json(data, options) {
+	    const builtOptions = (0, utils_1.buildC2JOptions)(options ?? {});
+	    // Validate the parameters before calling the converter's convert function
+	    (0, utils_1.validate)(data, utils_1.isString, constants_1.errors.csv2json);
+	    return (0, csv2json_1.Csv2Json)(builtOptions).convert(data);
+	}
+	converter.csv2json = csv2json;
+	return converter;
+}
+
+var converterExports = requireConverter();
 
 function getUserAgent() {
   if (typeof navigator === "object" && "userAgent" in navigator) {
@@ -34372,7 +35883,7 @@ function getAuthConfig(options) {
         return getDefaultAuthConfig(options);
     }
 }
-async function newClient(options) {
+async function createClient(options) {
     if (!options) {
         throw new Error('options are required');
     }
@@ -34383,75 +35894,59 @@ async function newClient(options) {
     };
     return new Octokit(octokitOptions);
 }
-const getRunnerCount = async (octokit, org, repo) => {
-    try {
-        const { data: runners } = await octokit.request('GET /repos/{owner}/{repo}/actions/runners', {
+
+class DataCollector {
+    octokit;
+    options;
+    constructor(octokit, options) {
+        this.octokit = octokit;
+        this.options = options;
+    }
+    getRunnerCount = async (org, repo) => {
+        this.options.logMessage(`Getting runners for ${org}/${repo}`, 'debug');
+        const { data: runners } = await this.octokit.request('GET /repos/{owner}/{repo}/actions/runners', {
             owner: org,
             repo: repo,
             per_page: 1
         });
         return runners.total_count;
-    }
-    catch (e) {
-        const error = e;
-        console.error(`Error getting runners for ${org}/${repo}: ${error.message}`);
-        return null;
-    }
-};
-const getSecretsCount = async (octokit, org, repo) => {
-    try {
-        const { data: secrets } = await octokit.request('GET /repos/{owner}/{repo}/actions/secrets', {
+    };
+    getSecretsCount = async (org, repo) => {
+        this.options.logMessage(`Getting secrets for ${org}/${repo}`, 'debug');
+        const { data: secrets } = await this.octokit.request('GET /repos/{owner}/{repo}/actions/secrets', {
             owner: org,
             repo: repo,
             per_page: 1
         });
         return secrets.total_count;
-    }
-    catch (e) {
-        const error = e;
-        console.error(`Error getting runners for ${org}/${repo}: ${error.message}`);
-        return null;
-    }
-};
-const getVariablesCount = async (octokit, org, repo) => {
-    try {
-        const { data: variables } = await octokit.request('GET /repos/{owner}/{repo}/actions/variables', {
+    };
+    getVariablesCount = async (org, repo) => {
+        this.options.logMessage(`Getting variables for ${org}/${repo}`, 'debug');
+        const { data: variables } = await this.octokit.request('GET /repos/{owner}/{repo}/actions/variables', {
             owner: org,
             repo: repo,
             per_page: 1
         });
         return variables.total_count;
-    }
-    catch (e) {
-        const error = e;
-        console.error(`Error getting runners for ${org}/${repo}: ${error.message}`);
-        return null;
-    }
-};
-const getEnvironmentsCount = async (octokit, org, repo) => {
-    try {
-        const { data: environments } = await octokit.request('GET /repos/{owner}/{repo}/environments', {
+    };
+    getEnvironmentsCount = async (org, repo) => {
+        this.options.logMessage(`Getting environments for ${org}/${repo}`, 'debug');
+        const { data: environments } = await this.octokit.request('GET /repos/{owner}/{repo}/environments', {
             owner: org,
             repo: repo,
             per_page: 1
         });
-        return environments.total_count;
-    }
-    catch (e) {
-        const error = e;
-        console.error(`Error getting runners for ${org}/${repo}: ${error.message}`);
-        return null;
-    }
-};
-const webhooks = async (octokit, org, repo) => {
-    try {
-        const webhooks = await octokit.paginate('GET /repos/{owner}/{repo}/hooks', {
+        return environments.total_count || 0;
+    };
+    getWebhooks = async (org, repo) => {
+        this.options.logMessage(`Getting webhooks for ${org}/${repo}`, 'debug');
+        const webhooks = await this.octokit.paginate('GET /repos/{owner}/{repo}/hooks', {
             owner: org,
             repo: repo,
             per_page: 100
         });
         return webhooks.map((hook) => {
-            return {
+            const webhook = {
                 name: hook.name,
                 url: hook.config.url || '',
                 active: hook.active,
@@ -34461,79 +35956,142 @@ const webhooks = async (octokit, org, repo) => {
                     message: hook.last_response.message
                 }
             };
+            return webhook;
         });
-    }
-    catch (e) {
-        const error = e;
-        console.error(`Error getting runners for ${org}/${repo}: ${error.message}`);
-        return null;
-    }
-};
-const getRepoStats = async (octokit, org, repo) => {
-    let result;
-    if (repo.archived) {
-        result = {
-            org: org,
-            name: repo.name,
-            archived: repo.archived,
-            created_at: repo.created_at,
-            pushed_at: repo.pushed_at,
-            updated_at: repo.updated_at,
-            runners: null,
-            secrets: null,
-            variables: null,
-            environments: null,
-            hooks: null
-        };
-    }
-    else {
-        const name = repo.name;
-        const runners = await getRunnerCount(octokit, org, name);
-        const secrets = await getSecretsCount(octokit, org, name);
-        const variables = await getVariablesCount(octokit, org, name);
-        const environments = await getEnvironmentsCount(octokit, org, name);
-        const hooks = await webhooks(octokit, org, name);
-        result = {
-            org: org,
-            name: name,
-            archived: repo.archived,
-            created_at: repo.created_at,
-            pushed_at: repo.pushed_at,
-            updated_at: repo.updated_at,
-            runners: runners,
-            secrets: secrets,
-            variables: variables,
-            environments: environments,
-            hooks: hooks
-        };
-    }
-    return result;
-};
-async function collectData(options) {
-    const filePath = 'results.json';
-    await fs.writeFile(filePath, '[\n', 'utf8');
-    const octokit = await newClient(options);
-    const orgs = [options.org];
-    for (const org of orgs) {
-        const _repos = octokit.paginate.iterator(octokit.rest.repos.listForOrg, {
-            org: org,
-            per_page: 100
+    };
+    getRepoStats = async (org, repo) => {
+        this.options.logMessage(`Getting stats for ${org}/${repo.name}`, 'debug');
+        let result;
+        if (repo.archived) {
+            this.options.logMessage(`Skipping retrieving detailed stats for archived repo ${org}/${repo.name}`, 'info');
+            result = {
+                org: org,
+                name: repo.name,
+                archived: repo.archived,
+                created_at: repo.created_at,
+                pushed_at: repo.pushed_at,
+                updated_at: repo.updated_at,
+                runners: null,
+                secrets: null,
+                variables: null,
+                environments: null,
+                hooks: null
+            };
+        }
+        else {
+            this.options.logMessage(`Retrieving detailed stats for repo ${org}/${repo.name}`, 'info');
+            const name = repo.name;
+            const runners = await this.getRunnerCount(org, name);
+            const secrets = await this.getSecretsCount(org, name);
+            const variables = await this.getVariablesCount(org, name);
+            const environments = await this.getEnvironmentsCount(org, name);
+            const hooks = this.options.include_hooks
+                ? await this.getWebhooks(org, name)
+                : null;
+            result = {
+                org: org,
+                name: name,
+                archived: repo.archived,
+                created_at: repo.created_at,
+                pushed_at: repo.pushed_at,
+                updated_at: repo.updated_at,
+                runners: runners,
+                secrets: secrets,
+                variables: variables,
+                environments: environments,
+                hooks: hooks
+            };
+        }
+        return result;
+    };
+    canCollectData = () => {
+        this.options.logMessage('Checking if data can be collected', 'info');
+        if (!this.options) {
+            return false;
+        }
+        if (!this.octokit) {
+            return false;
+        }
+        this.options.logMessage('Data can be collected', 'info');
+        return true;
+    };
+    convertToCsv = async (file_path) => {
+        this.options.logMessage('Converting to CSV', 'info');
+        const data = await fs.readFile(file_path, 'utf8');
+        const jsonData = JSON.parse(data);
+        const csv = converterExports.json2csv(jsonData, {
+            expandArrayObjects: true,
+            expandNestedObjects: true
         });
-        let first = true;
-        for await (const { data: repos } of _repos) {
-            for (const repo of repos) {
-                const result = await getRepoStats(octokit, org, repo);
-                console.log(JSON.stringify(result));
-                // Write the result to the file incrementally
-                const json = JSON.stringify(result, null, 2);
-                await fs.appendFile(filePath, `${first ? '' : ',\n'}${json}`, 'utf8');
-                first = false;
+        const csv_file = file_path.replace('.json', '.csv');
+        await fs.writeFile(csv_file, csv, 'utf8');
+        this.options.logMessage('Converted to CSV', 'info');
+        return csv_file;
+    };
+    collectData = async () => {
+        this.options.logMessage('Collecting data', 'info');
+        if (!this.canCollectData()) {
+            throw new Error('Data collection is not configured correctly');
+        }
+        const json_output_file = 'results.json';
+        await fs.writeFile(json_output_file, '[\n', 'utf8');
+        const orgs = [this.options.org];
+        for (const org of orgs) {
+            this.options.logMessage(`Getting repos for ${org}`, 'debug');
+            const _repos = this.octokit.paginate.iterator(this.octokit.rest.repos.listForOrg, {
+                org: org,
+                per_page: 100
+            });
+            let first = true;
+            for await (const { data: repos } of _repos) {
+                for (const repo of repos) {
+                    const result = await this.getRepoStats(org, repo);
+                    this.options.logMessage(JSON.stringify(result), 'debug');
+                    const json = JSON.stringify(result, null, 2);
+                    await fs.appendFile(json_output_file, `${first ? '' : ',\n'}${json}`, 'utf8');
+                    first = false;
+                }
             }
         }
-    }
-    await fs.appendFile(filePath, '\n]', 'utf8');
+        await fs.appendFile(json_output_file, '\n]', 'utf8');
+        if (this.options.output_file_type === 'csv') {
+            const csv_output_file = await this.convertToCsv(json_output_file);
+            return csv_output_file;
+        }
+        else {
+            return json_output_file;
+        }
+    };
+}
+const createCollector = async (options) => {
+    const octokit = await createClient(options);
+    return new DataCollector(octokit, options);
+};
+async function collectData(options) {
+    const collector = await createCollector(options);
+    return await collector.collectData();
 }
 
+const logMessage = (message, level) => {
+    if (!core$1) {
+        console.log(message);
+        return;
+    }
+    switch (level) {
+        case 'error':
+            coreExports.error(message);
+            break;
+        case 'warning':
+            coreExports.warning(message);
+            break;
+        case 'debug':
+            coreExports.debug(message);
+            break;
+        default:
+            coreExports.info(message);
+            break;
+    }
+};
 /**
  * The main function for the action.
  *
@@ -34541,32 +36099,41 @@ async function collectData(options) {
  */
 async function run() {
     try {
+        logMessage('Collecting inputs ...', 'debug');
         const options = {
             org: coreExports.getInput('org'),
             api_url: coreExports.getInput('api_url'),
             token: coreExports.getInput('token'),
-            auth_type: coreExports.getInput('auth_type'),
+            auth_type: coreExports.getInput('auth_type', {
+                required: true
+            }),
             is_debug: coreExports.getInput('is_debug') === 'true' ? true : false,
             client_id: coreExports.getInput('client_id'),
             client_secret: coreExports.getInput('client_secret'),
             app_id: coreExports.getInput('app_id'),
             app_private_key: coreExports.getInput('app_private_key'),
-            app_installation_id: coreExports.getInput('app_installation_id')
+            app_installation_id: coreExports.getInput('app_installation_id'),
+            include_hooks: coreExports.getInput('include_hooks') === 'true' ? true : false,
+            output_file_type: coreExports.getInput('output_file_type'),
+            logMessage: logMessage
         };
         // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-        coreExports.debug(`Gathering data for ${options.org} ...`);
-        // Log the current timestamp, wait, then log the new timestamp
-        coreExports.debug(new Date().toTimeString());
-        await collectData(options);
-        //await wait(parseInt(ms, 10))
-        coreExports.debug(new Date().toTimeString());
+        logMessage(`Gathering data for ${options.org} ...`, 'info');
+        // collect data
+        logMessage(new Date().toTimeString(), 'debug');
+        const output_file = await collectData(options);
+        logMessage(`Data written to ${output_file}`, 'info');
+        logMessage(new Date().toTimeString(), 'debug');
         // Set outputs for other workflow steps to use
-        coreExports.setOutput('file', new Date().toTimeString());
+        coreExports.setOutput('output_file', output_file);
     }
     catch (error) {
+        logMessage('Error occurred trying to run the action', 'error');
         // Fail the workflow run if an error occurs
-        if (error instanceof Error)
+        if (error instanceof Error) {
+            logMessage(error.message, 'error');
             coreExports.setFailed(error.message);
+        }
     }
 }
 

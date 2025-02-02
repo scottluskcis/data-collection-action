@@ -10,7 +10,7 @@ import {
 } from './types.js'
 import { createClient } from './client.js'
 
-class DataCollector implements CollectData {
+export class DataCollector implements CollectData {
   private octokit: Octokit
   private options: DataCollectOptions
 
@@ -247,7 +247,9 @@ const createCollector = async (
   return new DataCollector(octokit, options)
 }
 
-export async function collectData(options: DataCollectOptions): Promise<void> {
+export async function collectData(
+  options: DataCollectOptions
+): Promise<string> {
   const collector = await createCollector(options)
-  await collector.collectData()
+  return await collector.collectData()
 }
