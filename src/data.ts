@@ -106,6 +106,11 @@ class DataCollector implements CollectData {
 
     let result: RepoStats
     if (repo.archived) {
+      this.options.logMessage(
+        `Skipping retrieving detailed stats for archived repo ${org}/${repo.name}`,
+        'info'
+      )
+
       result = {
         org: org,
         name: repo.name,
@@ -120,6 +125,11 @@ class DataCollector implements CollectData {
         hooks: null
       }
     } else {
+      this.options.logMessage(
+        `Retrieving detailed stats for repo ${org}/${repo.name}`,
+        'info'
+      )
+
       const name = repo.name
 
       const runners = await this.getRunnerCount(org, name)
@@ -156,6 +166,8 @@ class DataCollector implements CollectData {
     if (!this.octokit) {
       return false
     }
+
+    this.options.logMessage('Data can be collected', 'info')
     return true
   }
 
@@ -172,6 +184,8 @@ class DataCollector implements CollectData {
 
     const csv_file = file_path.replace('.json', '.csv')
     await fs.writeFile(csv_file, csv, 'utf8')
+
+    this.options.logMessage('Converted to CSV', 'info')
 
     return csv_file
   }
