@@ -55,6 +55,15 @@ inputs:
     description: The GitHub App installation ID to use for authentication
     required: false
 
+  output_file_type:
+    description: The type of file to output (either 'csv' or 'json')
+    required: false
+    default: 'csv'
+
+  is_enterprise:
+    description: Whether the GitHub API is an enterprise instance
+    required: false
+
 # Define your outputs here.
 outputs:
   output_file:
