@@ -55,6 +55,10 @@ inputs:
     description: The GitHub App installation ID to use for authentication
     required: false
 
+  is_enterprise:
+    description: Whether the GitHub API is an enterprise instance
+    required: false
+
 # Define your outputs here.
 outputs:
   output_file:
