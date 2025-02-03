@@ -62,6 +62,10 @@ export class DataCollector implements CollectData {
   }
 
   getEnvironmentsCount = async (org: string, repo: string): Promise<number> => {
+    if (this.options.is_enterprise === false) {
+      return 0
+    }
+
     this.options.logMessage(`Getting environments for ${org}/${repo}`, 'debug')
 
     const { data: environments } = await this.octokit.request(

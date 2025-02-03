@@ -38,6 +38,7 @@ export interface DataCollectOptions {
     app_installation_id: string | undefined;
     include_hooks: boolean | undefined;
     output_file_type: OutputFileType;
+    is_enterprise: boolean | undefined;
     logMessage: (message: string, level: 'info' | 'error' | 'warning' | 'debug') => void;
 }
 export interface CollectData {

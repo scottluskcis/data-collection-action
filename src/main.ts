@@ -51,6 +51,7 @@ export async function run(): Promise<void> {
       app_installation_id: core.getInput('app_installation_id'),
       include_hooks: core.getInput('include_hooks') === 'true' ? true : false,
       output_file_type: core.getInput('output_file_type') as OutputFileType,
+      is_enterprise: core.getInput('is_enterprise') === 'true' ? true : false,
       logMessage: logMessage
     }
 

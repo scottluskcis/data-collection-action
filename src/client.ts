@@ -1,6 +1,5 @@
 import { Octokit } from 'octokit'
 import { createAppAuth } from '@octokit/auth-app'
-import { createTokenAuth } from '@octokit/auth-token'
 import { DataCollectOptions } from './types.js'
 
 function getInstallationAuthConfig(options: DataCollectOptions) {
@@ -54,7 +53,7 @@ function getDefaultAuthConfig(options: DataCollectOptions) {
     throw new Error('token is required')
   }
 
-  return { authStrategy: createTokenAuth, auth: options.token }
+  return { authStrategy: undefined, auth: options.token }
 }
 
 function getAuthConfig(options: DataCollectOptions) {
