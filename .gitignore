@@ -103,3 +103,4 @@ __tests__/runner/*
 
 # output files
 results.json
+results.csv
