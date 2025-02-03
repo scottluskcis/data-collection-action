@@ -35870,7 +35870,7 @@ function getDefaultAuthConfig(options) {
     if (!options.token) {
         throw new Error('token is required');
     }
-    return { authStrategy: createTokenAuth, auth: options.token };
+    return { authStrategy: undefined, auth: options.token };
 }
 function getAuthConfig(options) {
     if (options.auth_type === 'installation') {
@@ -35930,6 +35930,9 @@ class DataCollector {
         return variables.total_count;
     };
     getEnvironmentsCount = async (org, repo) => {
+        if (this.options.is_enterprise === false) {
+            return 0;
+        }
         this.options.logMessage(`Getting environments for ${org}/${repo}`, 'debug');
         const { data: environments } = await this.octokit.request('GET /repos/{owner}/{repo}/environments', {
             owner: org,
@@ -36115,6 +36118,7 @@ async function run() {
             app_installation_id: coreExports.getInput('app_installation_id'),
             include_hooks: coreExports.getInput('include_hooks') === 'true' ? true : false,
             output_file_type: coreExports.getInput('output_file_type'),
+            is_enterprise: coreExports.getInput('is_enterprise') === 'true' ? true : false,
             logMessage: logMessage
         };
         // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
