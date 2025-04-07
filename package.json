@@ -40,8 +40,8 @@
     "@actions/core": "^1.11.1",
     "@octokit/auth-app": "^7.1.4",
     "@octokit/openapi-types": "^23.0.1",
-    "json-2-csv": "^5.5.8",
-    "octokit": "^4.1.0"
+    "json-2-csv": "^5.5.9",
+    "octokit": "^4.1.2"
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.7",
