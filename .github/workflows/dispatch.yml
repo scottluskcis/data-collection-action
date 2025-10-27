@@ -30,7 +30,7 @@ jobs:
           app_installation_id: ${{ secrets.APP_INSTALLATION_ID }}
 
       - name: Store results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: collected-results
           path: results.json
